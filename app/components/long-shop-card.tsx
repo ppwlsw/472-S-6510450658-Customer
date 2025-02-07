@@ -1,3 +1,4 @@
+import { useNavigate } from '@remix-run/react';
 import { Hourglass } from 'lucide-react';
 
 interface LongShopCardProps {
@@ -8,8 +9,14 @@ interface LongShopCardProps {
 }
 
 function LongShopCard({ img_url, name, distance, total_queue }: LongShopCardProps) {
+    const navigate = useNavigate();
+    
+    const handleClick = () => {
+        navigate("/shop");
+    };
+
   return (
-    <div className="flex flex-col gap-2.5 border-gray-200 border-[1px] rounded-xl hover:shadow-xl transition-all pb-4">
+    <div className="flex flex-col gap-2.5 border-gray-200 border-[1px] rounded-xl hover:shadow-xl transition-all pb-4" onClick={handleClick}>
       <img
         src={img_url}
         className="object-cover w-full h-48 rounded-t-xl mt-[-1px]"

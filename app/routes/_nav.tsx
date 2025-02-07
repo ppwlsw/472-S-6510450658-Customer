@@ -1,4 +1,4 @@
-import { Outlet } from '@remix-run/react';
+import { Link, Outlet } from '@remix-run/react';
 import { AlignJustify } from 'lucide-react';
 
 function Nav(){
@@ -9,7 +9,7 @@ function Nav(){
             </div>
 
             <div className='text-white text-2xl font-bold'>
-                <p>SeeQ</p>
+                <Link to="/homepage" prefetch="intent">SeeQ</Link>
             </div>
 
             <div className='rounded-full bg-zinc-600 w-[47px] h-[47px]'>
