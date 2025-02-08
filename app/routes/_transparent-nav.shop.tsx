@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { Hourglass, MapPin } from 'lucide-react';
+import { Hourglass, MapPin, Phone } from 'lucide-react';
 import GapController from '~/components/gap-control';
 import QueueCard from '~/components/queue-card';
 import XAxisSlide from '~/components/x-axis-slide';
+import MenuCard from '~/components/menu-card';
 
 function ShopPage() {
     const [selectedIndex, setSelectedIndex] = useState(0);
@@ -79,6 +80,7 @@ function ShopPage() {
                                                 isAvailable={index % 2 === 0}
                                                 onClick={() => handleQueueClick(index)}
                                                 isSelected={selectedQueue === index}
+                                                name='Table A (1-2) Persons'
                                             />
                                         ))}
                                     </XAxisSlide>
@@ -96,22 +98,58 @@ function ShopPage() {
                         )}
                     </div>
 
-                    <button
-                        className="bg-primary-dark rounded-xl w-full text-white py-[15px]"
-                        onClick={() => console.log(`Send to backend: User book ${selectedQueue}`)}
-                    >
-                        จองเลย
-                    </button>
+                    {
+                        selectedIndex === 0 && (
+                            <button
+                                className="bg-primary-dark rounded-xl w-full text-white py-[15px]"
+                                onClick={() => console.log(`Send to backend: User book ${selectedQueue}`)}
+                            >
+                                จองเลย
+                            </button>
+                        )
+                    }
 
+                    
                     <div
                         className={`transition-all duration-500 ease-in-out transform ${
                             selectedIndex === 1 ? 'translate-x-0' : 'translate-x-full'
                         }`}
                     >
                         {selectedIndex === 1 && (
-                            <div className="mx-[20px] mt-[9vh]">
-                                This is description part
-                            </div>
+                            <GapController gap={10}>
+                                <div className="py-6 border-black/33 border-b-[1px]">
+                                    <GapController gap={15}>
+                                        <h1 className='text-[32px] font-bold'>รายละเอียด</h1>
+                                        <p className='text-[12px] font-normal'>ศาสตราจารย์ ดร.สมบูรณ์ ปิ้งย่าง เกิดเมื่อปี พ.ศ. 2508 ในจังหวัดเชียงใหม่ เติบโตมาในครอบครัวที่รักการทำอาหารและมีร้านหมูกระทะเล็ก ๆ เป็นของตนเอง ความสนใจในศาสตร์แห่งการปิ้งย่างและการหมักเนื้อทำให้เขามุ่งมั่นศึกษาด้านวิทยาศาสตร์อาหารตั้งแต่เยาว์วัย</p>
+                                        <GapController gap={5} y_axis={false} >
+                                            <MapPin width={14} height={17}></MapPin>
+                                            <p className='underline text-[12px] font-bold' onClick={()=>window.open("https://maps.app.goo.gl/1zWR2sKegkbLM4yN8", "_blank")}>ดูตำแหน่งในแผนที่</p>
+                                        </GapController>
+
+                                        <GapController gap={5} y_axis={false}>
+                                            <Phone width={14} height={17}></Phone>
+                                            <p className='underline text-[12px] font-bold'>091-234-5678</p>
+                                        </GapController>
+                                    </GapController>
+                                </div>
+
+                                <div className="py-6">
+                                    <GapController gap={15}>
+                                        <h1 className='text-[32px] font-normal'>รายการสินค้า</h1>
+                                        <div className="grid grid-cols-4 gap-x-auto gap-y-4">
+                                            <MenuCard img_url='public/starbuck.png' name='Coffee'></MenuCard>
+                                            <MenuCard img_url='public/starbuck.png' name='Coffee'></MenuCard>
+                                            <MenuCard img_url='public/starbuck.png' name='Coffee'></MenuCard>
+                                            <MenuCard img_url='public/starbuck.png' name='Coffee'></MenuCard>
+                                            <MenuCard img_url='public/starbuck.png' name='Coffee'></MenuCard>
+                                            <MenuCard img_url='public/starbuck.png' name='Coffee'></MenuCard>
+                                            <MenuCard img_url='public/starbuck.png' name='Coffee'></MenuCard>
+                                            <MenuCard img_url='public/starbuck.png' name='Coffee'></MenuCard>
+                                            <MenuCard img_url='public/starbuck.png' name='Coffee'></MenuCard>
+                                        </div>
+                                    </GapController>
+                                </div>
+                            </GapController>
                         )}
                     </div>
                 </GapController>

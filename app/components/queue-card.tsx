@@ -4,9 +4,10 @@ interface QueueCardProps {
     isAvailable: boolean;
     onClick: () => void;
     isSelected: boolean;
+    name: string;
 }
 
-function QueueCard({ isAvailable, onClick, isSelected }: QueueCardProps) {
+function QueueCard({ isAvailable, onClick, isSelected, name }: QueueCardProps) {
     return (
         <div
             onClick={isAvailable?onClick:function(){}}
@@ -17,7 +18,7 @@ function QueueCard({ isAvailable, onClick, isSelected }: QueueCardProps) {
         >
             <Armchair />
             <p className="text-[13px] font-bold text-center w-full whitespace-normal">
-                Table A (1-2) Persons
+                {name}
             </p>
         </div>
     );
