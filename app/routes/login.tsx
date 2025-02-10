@@ -1,4 +1,3 @@
-import { ActionFunctionArgs } from "@remix-run/node";
 import { useFetcher, useLoaderData } from "@remix-run/react";
 
 export async function loader() {
@@ -8,10 +7,6 @@ export async function loader() {
     };
 }
 
-export async function action({request}:ActionFunctionArgs) {
-    console.log(request);
-    return request;
-}
 
 export default function Login() {
     const {message, status} = useLoaderData<typeof loader>();
