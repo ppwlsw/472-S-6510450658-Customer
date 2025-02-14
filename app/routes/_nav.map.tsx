@@ -202,9 +202,7 @@ function MapPage() {
 
   return (
     <div className="relative flex flex-col bg-sky-400 h-screen">
-      <div className="w-screen bg-cyan-900 flex justify-center z-10">
-        This is nav bar trust me bro.
-      </div>
+      
 
       {isLoading ? (
         <div className="absolute inset-0 flex items-center justify-center bg-white/80 z-50">
