@@ -18,6 +18,14 @@ export default defineConfig({
         v3_singleFetch: true,
         v3_lazyRouteDiscovery: true,
       },
+      routes(defineRoutes) {
+        return defineRoutes(
+          (route) => {
+            route("/auth/google/login", "auth/google.auth.tsx", {index: true});
+            route("/auth/google/callback", "auth/google.callback.tsx", {index: true});
+          }
+        );
+      }
     }),
     tsconfigPaths(),
   ],
