@@ -1,5 +1,5 @@
 import type { MetaFunction } from "@remix-run/node";
-
+import { Link } from "@remix-run/react";
 export const meta: MetaFunction = () => {
   return [
     { title: "New Remix App" },
@@ -33,19 +33,7 @@ export default function Index() {
             What&apos;s next?
           </p>
           <ul>
-            {resources.map(({ href, text, icon }) => (
-              <li key={href}>
-                <a
-                  className="group flex items-center gap-3 self-stretch p-3 leading-normal text-blue-700 hover:underline dark:text-blue-500"
-                  href={href}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  {icon}
-                  {text}
-                </a>
-              </li>
-            ))}
+            <Link to={"/user/map"}>Go to Map</Link>
           </ul>
         </nav>
       </div>
@@ -55,7 +43,7 @@ export default function Index() {
 
 const resources = [
   {
-    href: "https://remix.run/start/quickstart",
+    href: "",
     text: "Quick Start (5 min)",
     icon: (
       <svg
