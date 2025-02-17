@@ -75,24 +75,27 @@ function validateInput(formData : FormData) {
 
 export default function Register() {
   return (
-    <div className="grid grid-cols-1 items-center content-end h-svh">
-      <div className="flex flex-col justify-start w-full h-svh col-start-1 row-start-1">
+    <div className="h-screen flex flex-col justify-end bg-primary-dark-50">
+      <div className="flex items-center justify-center absolute top-[-70px] w-full h-1/2">
         <img
-          src="/public/register-bg.png"
+          src="/public/register-logo.png"
           alt="logo"
-          className="w-full h-[50%] object-cover object-[100%_0%]"
+          className="h-60 w-auto"
         />
       </div>
-      <div className="flex flex-col justify-end w-full h-svh col-start-1 row-start-1">
-        <div className="mb-[55svh] h-[20svh] bg-gray-100 rounded-t-[40px] col-start-1 row-start-1">
-          <p className="text-primary-dark text-3xl text-center pt-6">
-            สมัครสมาชิก
+
+      <div className="grid grid-cols-1 justify-center items-center z-50">
+        <div className="h-full col-start-1 row-start-1 bg-gray-100 rounded-t-[40px]">
+          <p className="mt-4 text-center text-3xl">
+          ลงทะเบียน
           </p>
         </div>
-      </div>
-
-      <div className="flex flex-col justify-end h-svh bg-transparent col-start-1 row-start-1">
-        <FetcherForm />
+        <div className="col-start-1 row-start-1">
+          <div className="mt-16">
+            <FetcherForm />
+          </div>
+          
+        </div>
       </div>
     </div>
   );
@@ -104,7 +107,7 @@ function FetcherForm() {
   return (
     <fetcher.Form
       method="POST"
-      className="flex flex-col bg-white border h-[65svh] min-h-fit w-svw shadow-lg shadow-black/80 rounded-t-[40px]"
+      className="flex flex-col bg-white border w-svw shadow-lg shadow-black/80 rounded-t-[40px]"
     >
       <div
         className="flex flex-col items-center justify-center h-full w-full p-16 pt-8 pb-8
