@@ -1,11 +1,14 @@
-import { Route } from "@remix-run/react";
+import React from "react";
 import { Link } from "react-router-dom";
+import { MapPin, Users, Clock } from "lucide-react";
+import { marker } from "framer-motion/m";
 
 export interface MarkerData {
   title: string;
   address: string;
   currentQueue: number;
   imgUrl?: string;
+  is_open: boolean;
 }
 
 export default function MarkerPopup({
@@ -15,27 +18,51 @@ export default function MarkerPopup({
 }) {
   return (
     <Link to={"../"}>
-      <div className="absolute bottom-20 bg-white rounded-md border border-slate-200 m-1 h-auto min-h-[150px] z-20 p-2 flex items-center w-11/12 sm:w-1/2">
-        <div className="flex flex-row w-full h-full items-center ">
-          <div className="w-1/3 h-full rounded-full bg-slate-200">
-            <img
-              src={
-                markerData.imgUrl ||
-                "https://images.deliveryhero.io/image/fd-th/th-logos/cl8sb-logo.jpg"
-              }
-              alt={markerData.title}
-              className="w-full h-full object-cover rounded-full"
-            />
-          </div>
-          <div className="flex flex-col justify-around w-full h-full ml-3">
-            <div className="flex flex-row justify-start w-full text-lg font-bold">
-              {markerData.title}
+      <div className="absolute bottom-5 w-11/12 sm:w-1/2 min-h-[150px] z-20 m-1 rounded-lg border border-slate-200 shadow-lg hover:shadow-xl transition-all duration-300 bg-white/95 backdrop-blur-sm">
+        <div className="p-4">
+          <div className="flex items-center gap-4">
+            <div className="relative w-1/3 aspect-square">
+              <div className="absolute inset-0 bg-blue-100 rounded-full animate-pulse" />
+              <img
+                src={markerData.imgUrl || "/api/placeholder/400/400"}
+                alt={markerData.title}
+                className="relative w-full h-full object-cover rounded-full ring-2 ring-blue-500 ring-offset-2"
+              />
             </div>
-            <div className="flex flex-row justify-start w-full line-clamp-2">
-              ที่อยู่ : {markerData.address}
-            </div>
-            <div className="flex flex-row justify-start w-full font-bold">
-              คิวตอนนี้ : {markerData.currentQueue}
+
+            <div className="flex-1 space-y-3">
+              <h3 className="text-lg font-bold text-blue-900 line-clamp-1 group-hover:text-blue-700 transition-colors">
+                {markerData.title}
+              </h3>
+
+              <div className="flex items-center gap-2 text-slate-600">
+                <MapPin className="w-4 h-4 text-blue-500" />
+                <p className="line-clamp-2 text-sm">{markerData.address}</p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1 bg-blue-50 px-3 py-1 rounded-full">
+                  <Users className="w-4 h-4 text-blue-500" />
+                  <span className="text-sm font-semibold text-blue-700">
+                    คิวตอนนี้: {markerData.currentQueue}
+                  </span>
+                </div>
+                {markerData.is_open ? (
+                  <div className="flex items-center gap-1 bg-green-50 px-3 py-1 rounded-full">
+                    <Clock className="w-4 h-4 text-green-500" />
+                    <span className="text-sm font-semibold text-green-700">
+                      พร้อมให้บริการ
+                    </span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-1 bg-red-50 px-3 py-1 rounded-full">
+                    <Clock className="w-4 h-4 text-red-500" />
+                    <span className="text-sm font-semibold text-red-700">
+                      ไม่เปิดให้บริการ
+                    </span>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
