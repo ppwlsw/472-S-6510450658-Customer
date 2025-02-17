@@ -5,7 +5,8 @@ export default {
   theme: {
     extend: {
       colors: {
-        "primary-dark" : '#242F40'
+        "primary-dark" : '#242F40',
+        "primary-dark-50" : '#3a4c68'
       },
       fontFamily: {
         sans: [
