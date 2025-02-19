@@ -1,13 +1,13 @@
 import { Link, useLocation } from "@remix-run/react";
 import { ReactNode } from "react";
 
-interface NavItemProps {
+interface SidebarItemProps {
   icon: ReactNode;
   label: string;
   path: string;
 }
 
-export function NavItem({ icon, label, path }: NavItemProps) {
+export function SidebarItem({ icon, label, path }: SidebarItemProps) {
   const location = useLocation();
   const isActive = location.pathname === path;
 
