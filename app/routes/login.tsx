@@ -4,9 +4,21 @@ import { redirect, useFetcher, type ActionFunctionArgs, type LoaderFunctionArgs 
 
 export async function loader( {request}: LoaderFunctionArgs){
     const url = new URL(request.url);
-    const token = url.searchParams.get("token");
-    console.log(token);
+    const token: string = url.searchParams.get("token") as string;
+    if (!token) {
+        return null;
+    }
+    const formData = new FormData();
+    formData.set("encrypted", token);
+    const response = await fetch("http://localhost/api/auth/decrypt", {
+        method: "POST",
+        body: formData,
+    });
+    
+    const json = await response.json();
+    console.log(json.plain_text);
     return null;
+
 } 
 
 export default function Login() {
