@@ -106,7 +106,7 @@ function FetcherForm() {
   return (
     <fetcher.Form
       method="POST"
-      className="flex flex-col bg-white border w-full shadow-lg shadow-black/80 rounded-t-[40px] h-full"
+      className="flex flex-col bg-white  w-full shadow-lg shadow-black/80 rounded-t-[40px] h-full"
     >
       <div
         className="flex flex-col items-center justify-center h-full w-full p-16 pt-8
