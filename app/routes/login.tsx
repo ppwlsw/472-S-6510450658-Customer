@@ -1,63 +1,86 @@
 import { Eye, EyeClosed } from "lucide-react";
 import { useState } from "react";
-import { redirect, useFetcher, type ActionFunctionArgs, type LoaderFunctionArgs } from "react-router";
+import {
+  Link,
+  redirect,
+  useFetcher,
+  useLoaderData,
+  type ActionFunctionArgs,
+  type LoaderFunctionArgs,
+} from "react-router";
+import { requestDecryptToken, requestGoogleLogin, requestLogin } from "~/services/auth";
+import { authCookie } from "~/services/cookie";
 
-export async function loader( {request}: LoaderFunctionArgs){
-    const url = new URL(request.url);
-    const token: string = url.searchParams.get("token") as string;
-    if (!token) {
-        return null;
-    }
-    const formData = new FormData();
-    formData.set("encrypted", token);
-    const response = await fetch("http://localhost/api/auth/decrypt", {
-        method: "POST",
-        body: formData,
+
+export async function loader({ request }: LoaderFunctionArgs) {
+  const url = new URL(request.url);
+  const token: string = url.searchParams.get("token") as string;
+  if (token) {
+    const decrypted = (await requestDecryptToken(token)).data;
+    const cookie = await authCookie.serialize(decrypted);
+    return redirect("/homepage", {
+      headers: {
+        "Set-Cookie": cookie,
+      },
     });
-    
-    const json = await response.json();
-    console.log(json.plain_text);
-    return null;
+  }
+}
 
-} 
+export async function action({ request }: ActionFunctionArgs) {
+  const formData = await request.formData();
+  const action: string = formData.get("_action") as string;
+  if (action === "default_login") {
+    formData.set("email", (formData.get("email") as string).toLowerCase());
+    const error = validateInput(formData);
 
-export default function Login() {
+    if (error) {
+      return error;
+    }
+
+    const response = await requestLogin({
+      email: formData.get("email") as string,
+      password: formData.get("password") as string,
+    });
+
+    if (response.status !== 201) {
+      return {
+        message: "",
+        error: response.error,
+        status: response.status,
+      };
+    }
+
+    const token: string = response.data;
+    const decrypted = (await requestDecryptToken(token)).data;
+    const cookie = await authCookie.serialize(decrypted);
+    return redirect("/homepage", {
+      headers: {
+        "Set-Cookie": cookie,
+      },
+    }); 
+  }
+
+  if (action === "google_login") {
+    return await requestGoogleLogin(); 
+  }
+}
+
+function GoogleLoginFetcherForm() {
+  const fetcher = useFetcher<ActionMessage>();
   return (
-    <div className="flex flex-col justify-end h-screen bg-primary-dark-50 overflow-hidden">
-      <div className="flex flex-col justify-center items-center w-full absolute top-[15%]">
-        <img
-          src="/register-logo.png"
-          alt="logo"
-          className="h-60 w-auto"
-        />
-      </div>
-      <div className="grid grid-cols-1 justify-center items-center z-50">
-        <div className="h-full col-start-1 row-start-1 bg-gray-100 rounded-t-[40px]">
-          <p className="mt-4 text-center text-3xl">เข้าสู่ระบบ</p>
-        </div>
-        <div className="flex flex-col items-center gap-3 col-start-1 row-start-1 h-full w-full mt-32 bg-white borde shadow-lg shadow-black/80 rounded-t-[40px] p-16 pt-8 pb-0">
-          <FetcherForm />
-          <div className="flex text-center items-center w-full">
-            <span className="flex-grow h-px bg-gray-300"></span>
-            <span className="text-gray-500">Or</span>
-            <span className="flex-grow h-px bg-gray-300"></span>
-          </div>
-          <div className="flex justify-center items-center gap-6 bg-white w-full rounded-full p-4 border border-black"
-          onClick={googleSignIn}>
-            <img
-              src="/google-logo.png"
-              alt="google-logo"
-              className="h-6 w-auto"
-            />
-            <p className="text-lg">เข้าสู่ระบบด้วย Google</p>
-          </div>
-        </div>
-      </div>
-    </div>
+    <fetcher.Form
+      method="POST"
+      className="flex justify-center items-center gap-6 bg-white w-full rounded-full p-4 border border-black"
+    >
+      <img src="/google-logo.png" alt="google-logo" className="h-6 w-auto" />
+      <button name="_action" value="google_login" type="submit" className="text-lg">
+        เข้าสู่ระบบด้วย Google
+      </button>
+    </fetcher.Form>
   );
 }
 
-function FetcherForm() {
+function DefaultLoginFetcherForm() {
   const fetcher = useFetcher<ActionMessage>();
   return (
     <fetcher.Form
@@ -81,6 +104,8 @@ function FetcherForm() {
           {fetcher.data?.error ? fetcher.data.error : "error"}
         </p>
         <button
+          name="_action"
+          value="default_login"
           type="submit"
           className="bg-primary-dark text-white text-xl p-4 rounded-full w-full"
         >
@@ -146,38 +171,6 @@ interface ActionMessage {
   status: number;
 }
 
-export async function action({ request }: ActionFunctionArgs) {
-  const formData = await request.formData();
-  formData.set("email", (formData.get("email") as string).toLowerCase());
-  const error = validateInput(formData);
-
-  if (error) {
-    return error;
-  }
-  console.log(formData);
-
-  const response = await fetch("http://localhost/api/login", {
-    method: "POST",
-    body: formData,
-  });
-
-  if (response.status !== 201) {
-    return {
-      status: response.status,
-      message: "",
-      error:
-        response.status === 404
-          ? "ไม่พบข้อมูล"
-          : response.status === 401
-          ? "อีเมลหรือรหัสผ่านไม่ถูกต้อง"
-          : "เกิดข้อผิดพลาด",
-    };
-  }
-  console.log(response);
-
-  return redirect("/successful-register");
-}
-
 function validateInput(formData: FormData) {
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
@@ -202,10 +195,34 @@ function validateInput(formData: FormData) {
   return null;
 }
 
-async function googleSignIn() {
-  const response = await fetch("http://localhost/api/auth/google", {
-    method: "GET",
-  });
-  const json = await response.json();
-  window.location.href = json.url as string;
+export default function Login() {
+  return (
+    <div className="flex flex-col justify-end h-screen bg-primary-dark-50 overflow-hidden">
+      <div className="flex flex-col justify-center items-center w-full absolute top-[15%]">
+        <img src="/register-logo.png" alt="logo" className="h-60 w-auto" />
+      </div>
+      <div className="grid grid-cols-1 justify-center items-center z-50">
+        <div className="h-full col-start-1 row-start-1 bg-gray-100 rounded-t-[40px]">
+          <p className="mt-4 text-center text-3xl">เข้าสู่ระบบ</p>
+        </div>
+        <div className="flex flex-col items-center gap-3 col-start-1 row-start-1 h-full w-full mt-32 bg-white borde shadow-lg shadow-black/80 rounded-t-[40px] p-16 pt-8 pb-0">
+          <DefaultLoginFetcherForm />
+          <div className="flex text-center items-center w-full">
+            <span className="flex-grow h-px bg-gray-300"></span>
+            <span className="text-gray-500">Or</span>
+            <span className="flex-grow h-px bg-gray-300"></span>
+          </div>
+          <GoogleLoginFetcherForm />
+          <div className="flex justify-center items-center w-full gap-3 mt-4">
+            <p className="text-center text-gray-500">
+              หากคุณยังไม่มีบัญชีกรุณา
+            </p>
+            <Link to="/register" prefetch="render" className="text-primary-dark">
+                สมัครสมาชิก
+            </Link>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
