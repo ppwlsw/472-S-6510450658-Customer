@@ -1,18 +1,20 @@
+import { dd } from "framer-motion/m";
 import { redirect } from "react-router";
 
 const APP_URL: string = process.env.APP_URL as string;
 
 export async function requestGoogleLogin() {
-  console.log('requestGoogleLogin');
   const response = await fetch(`${APP_URL}api/auth/google`, {
     method: "GET",
   });
   const json = await response.json();
-  return redirect(json.url as string);
+  return redirect(json.data.url as string);
 }
 
 interface ResponseMessageProps {
-  data: string;
+  data: {
+    [key: string]: any;
+  };
   error: string;
   status: number;
 }
@@ -29,24 +31,56 @@ export async function requestLogin(
   formData.set("email", loginProps.email);
   formData.set("password", loginProps.password);
 
-  const response = await fetch(`${APP_URL}api/login`, {
+  const response = await fetch(`${APP_URL}api/auth/users/login`, {
     method: "POST",
     body: formData,
   });
 
-  const json = await response.json();
-  const token:string = json["token"] as string;
 
-  return {
+  const json = await response.json();
+   return {
     status: response.status,
-    data: response.status === 201 ? token : "",
+    data: response.status === 201 ? json.data: {},
     error:
       response.status === 201
         ? ""
         : response.status === 404
-        ? "ไม่พบข้อมูล"
+        ? "ไม่พบข้อมูลหรือยังไม่ได้ยืนยันอีเมล"
         : response.status === 401
         ? "อีเมลหรือรหัสผ่านไม่ถูกต้อง"
+        : "เกิดข้อผิดพลาด",
+  };
+}
+
+interface RegisterProps {
+  email: string;
+  name: string;
+  password: string;
+  phone: string;
+}
+
+export async function requestRegister(
+  registerProps: RegisterProps
+): Promise<ResponseMessageProps> {
+  const formData = new FormData();
+  formData.set("email", registerProps.email);
+  formData.set("name", registerProps.name);
+  formData.set("password", registerProps.password);
+  formData.set("phone", registerProps.phone);
+
+  const response = await fetch(`${APP_URL}api/auth/users/register`, {
+    method: "POST",
+    body: formData,
+  });
+  
+  return {
+    status: response.status,
+    data: {},
+    error:
+      response.status === 201
+        ? ""
+        : response.status === 422
+        ? "อีเมลนี้ถูกใช้ไปแล้ว"
         : "เกิดข้อผิดพลาด",
   };
 }
@@ -62,7 +96,7 @@ export async function requestDecryptToken(
   });
   const json = await response.json();
   return {
-    data: json.plain_text as string,
+    data: json.data,
     status: response.status,
     error: response.status === 500 ? "เกิดข้อผิดพลาด" : "",
   };

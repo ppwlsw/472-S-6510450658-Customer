@@ -1,6 +1,7 @@
 import { Eye, EyeClosed } from "lucide-react";
 import { useState } from "react";
 import { Link, redirect, useFetcher, type ActionFunctionArgs } from "react-router";
+import { requestRegister } from "~/services/auth";
 
 interface ActionMessage {
     message: string;
@@ -16,19 +17,20 @@ export async function action({ request }: ActionFunctionArgs) {
     if (error) {
         return error;
     }
-    console.log(formData);
 
-    const response = await fetch("http://localhost/api/register", {
-        method: "POST",
-        body: formData,
-    });
+    const response = await requestRegister({
+        email: formData.get("email") as string,
+        name: formData.get("name") as string,
+        phone: formData.get("phone") as string,
+        password: formData.get("password") as string,
+    })
 
     if (response.status !== 201) {
         return {
-            status: response.status,
             message: "",
-            error: response.status === 422 ? "อีเมลนี้ถูกใช้ไปแล้ว": "เกิดข้อผิดพลาด",
-        };
+            error: response.error,
+            status: response.status,
+        }
     }
 
     return redirect("/successful-register");

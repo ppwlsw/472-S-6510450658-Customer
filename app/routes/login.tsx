@@ -4,7 +4,6 @@ import {
   Link,
   redirect,
   useFetcher,
-  useLoaderData,
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
 } from "react-router";
@@ -50,7 +49,7 @@ export async function action({ request }: ActionFunctionArgs) {
       };
     }
 
-    const token: string = response.data;
+    const token: string = response.data.token;
     const decrypted = (await requestDecryptToken(token)).data;
     const cookie = await authCookie.serialize(decrypted);
     return redirect("/homepage", {
