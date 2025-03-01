@@ -1,4 +1,3 @@
-import { dd } from "framer-motion/m";
 import { redirect } from "react-router";
 
 const APP_URL: string = process.env.APP_URL as string;
@@ -31,11 +30,10 @@ export async function requestLogin(
   formData.set("email", loginProps.email);
   formData.set("password", loginProps.password);
 
-  const response = await fetch(`${APP_URL}api/auth/users/login`, {
+  const response = await fetch(`${APP_URL}api/auth/login`, {
     method: "POST",
     body: formData,
   });
-
 
   const json = await response.json();
    return {
@@ -68,10 +66,11 @@ export async function requestRegister(
   formData.set("password", registerProps.password);
   formData.set("phone", registerProps.phone);
 
-  const response = await fetch(`${APP_URL}api/auth/users/register`, {
+  const response = await fetch(`${APP_URL}api/auth/register`, {
     method: "POST",
     body: formData,
   });
+  console.log(response);
   
   return {
     status: response.status,

@@ -53,4 +53,5 @@ const createHybridRouter = async (
 };
 
 // Example usage - now using async
-export default createHybridRouter(() => []) satisfies Promise<RouteConfig>;
+export default createHybridRouter(() => [
+]) satisfies Promise<RouteConfig>;
