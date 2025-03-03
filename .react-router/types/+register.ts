@@ -12,6 +12,7 @@ type Params = {
   "/merchant/store-management": {};
   "/merchant/dashboard": {};
   "/merchant/queue": {};
+  "/scan": {};
   "/shop": {};
   "/register": {};
   "/login": {};
