@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { Flashlight, FlashlightOff, FileImage } from 'lucide-react';
 import QrScanner from "qr-scanner";
 
 interface ExtendedMediaTrackCapabilities extends MediaTrackCapabilities {
@@ -89,7 +90,6 @@ function ScanPage() {
       console.error(error);
     }
     
-    // Reset the input value so the same file can be selected again
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -104,8 +104,7 @@ function ScanPage() {
         <div className="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-white" />
         <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-white" />
       </div>
-      
-      {/* Hidden file input */}
+
       <input 
         type="file" 
         ref={fileInputRef} 
@@ -113,23 +112,21 @@ function ScanPage() {
         accept="image/*" 
         className="hidden" 
       />
-      
-      {/* Flash toggle button (left bottom) */}
+
       {hasFlash && (
         <button
           onClick={toggleFlashlight}
           className="absolute bottom-4 left-4 p-3 bg-white rounded-full text-black shadow-lg"
         >
-          {isFlashOn ? "Flash Off" : "Flash On"}
+          {isFlashOn ? <FlashlightOff></FlashlightOff> : <Flashlight></Flashlight>}
         </button>
       )}
-      
-      {/* Image upload button (right bottom) */}
+
       <button
         onClick={handleFileSelect}
         className="absolute bottom-4 right-4 p-3 bg-white rounded-full text-black shadow-lg"
       >
-        Select Image
+        <FileImage></FileImage>
       </button>
     </div>
   );
