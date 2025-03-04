@@ -14,6 +14,7 @@ type Params = {
   "/merchant/queue": {};
   "/scan": {};
   "/shop": {};
+  "/profile-edit": {};
   "/register": {};
   "/login": {};
   "/homepage": {};
