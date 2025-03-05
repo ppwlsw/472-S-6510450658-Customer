@@ -1,6 +1,6 @@
+import { div } from "framer-motion/m";
 import { useEffect, useRef, useState } from "react";
-import { redirect, useLoaderData, type LoaderFunctionArgs } from "react-router";
-
+import { redirect, useLoaderData, useNavigate, type LoaderFunctionArgs } from "react-router";
 
 interface QueueStatus {
   position: number;
@@ -46,19 +46,27 @@ export async function loader({ params }: LoaderFunctionArgs) {
   };
 
   try {
-
-    const infoRes = await fetch(urlQueueInformation, { headers: headers, method: "GET" })
+    const infoRes = await fetch(urlQueueInformation, {
+      headers: headers,
+      method: "GET",
+    });
     if (!infoRes.ok) {
       throw new Error("Failed to fetch info data.");
     }
     const infoData = await infoRes.json();
-    console.log(infoData.data)
-    if(!infoData.data){
-      return redirect("/shop")
+    console.log(infoData.data);
+    if (!infoData.data) {
+      return redirect("/shop");
     }
 
-    const bodyQueueStatus = JSON.stringify({ queue_user_got: infoData.data.queue_number })
-    const statusRes = await fetch(urlQueueStatus, { headers: headers, method: "POST", body: bodyQueueStatus })
+    const bodyQueueStatus = JSON.stringify({
+      queue_user_got: infoData.data.queue_number,
+    });
+    const statusRes = await fetch(urlQueueStatus, {
+      headers: headers,
+      method: "POST",
+      body: bodyQueueStatus,
+    });
     if (!statusRes.ok) {
       throw new Error("Failed to fetch status data.");
     }
@@ -78,14 +86,43 @@ export async function loader({ params }: LoaderFunctionArgs) {
     return { error: "Failed to load queue data." };
   }
 }
-
 export default function QueuePage() {
   const { queueId, info, status, url } = useLoaderData() as LoaderData;
 
   const [isCustomerTurn, setIsCustomerTurn] = useState(false);
-  const [dynamicStatus, setStatus] = useState<QueueStatus>(status)
+  const [dynamicStatus, setStatus] = useState<QueueStatus>(status);
   const eventSourceRef = useRef<EventSource | null>(null);
-  const queueUserGot = info.data.queue_number
+  const queueUserGot = info.data.queue_number;
+  const navigate = useNavigate();
+
+  const headers = {
+    "Content-Type": "application/json",
+    Authorization: `Bearer 1|FhiYiHotoUVNQQb1vAaZeRS2XSlQqrNEg9cMra9T4bb0860a`, // Store the token in an env variable
+  };
+
+  const handleCancelQueue = async () => {
+    const urlForCancelQueue = `http://localhost:80/api/queues/${queueId}/cancel`;
+    const fetchData = async () => {
+      try {
+        const response = await fetch(urlForCancelQueue, {
+          method: "POST",
+          headers: headers,
+          body: JSON.stringify({
+            queue_user_got: queueUserGot,
+          }),
+        });
+        if (!response.ok) throw new Error("Failed to fetch queues");
+        const data = await response.json();
+        if (data.removeStatus == true) {
+          navigate("/homepage");
+        }
+      } catch (error) {
+        console.error(error);
+        console.log(error);
+      }
+    };
+    fetchData();
+  };
 
   //SSE Connection
   useEffect(() => {
@@ -109,7 +146,7 @@ export default function QueuePage() {
 
         if (data.nextQueue === queue) {
           setIsCustomerTurn(true);
-          eventSource.close()
+          eventSource.close();
         }
 
         const headers = {
@@ -117,9 +154,8 @@ export default function QueuePage() {
           Authorization: `Bearer 1|FhiYiHotoUVNQQb1vAaZeRS2XSlQqrNEg9cMra9T4bb0860a`, // Store the token in an env variable
         };
 
-
         if (data.event === "next" || data.event === "cancel") {
-          console.log(data)
+          console.log(data);
           fetch(url.urlQueueStatus, {
             method: "POST",
             headers: headers,
@@ -189,17 +225,32 @@ export default function QueuePage() {
           <div className="flex flex-col mt-48 items-center gap-10">
             <div className="text-[#242F40] text-3xl">Reservation for:</div>
             <div className="text-2xl">{info?.data.shop_description}</div>
-            <div className="flex flex-row gap-20 text-xl">
-              <div className="flex flex-col items-center">
-                <h2>12</h2>
-                <h3>Estimate Time</h3>
+
+            {isCustomerTurn ? (
+              <div></div>
+            ) : (
+              <div className="flex flex-row gap-20 text-xl">
+                <div className="flex flex-col items-center">
+                  <h2>12</h2>
+                  <h3>Estimate Time</h3>
+                </div>
+                <div className="flex flex-col items-center">
+                  <h2>{dynamicStatus.position}</h2>
+                  <h3>Person ahead</h3>
+                </div>
               </div>
-              <div className="flex flex-col items-center">
-                <h2>{dynamicStatus.position}</h2>
-                <h3>Person ahead</h3>
-              </div>
-            </div>
-            <div className="text-2xl mb-10">Cancel queue</div>
+            )}
+
+            {isCustomerTurn ? (
+              <div className="text-green-500">Your Queue Now</div>
+            ) : (
+              <button
+                className="bg-primary-dark rounded-xl w-full text-white py-[15px]"
+                onClick={handleCancelQueue}
+              >
+                Cancel Queue
+              </button>
+            )}
           </div>
         </div>
       </div>
