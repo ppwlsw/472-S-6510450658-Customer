@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { json, redirect, useLoaderData } from "@remix-run/react";
-import { LoaderFunctionArgs } from "@remix-run/node";
+import { redirect, useLoaderData, type LoaderFunctionArgs } from "react-router";
+
 
 interface QueueStatus {
   position: number;
@@ -39,8 +39,6 @@ export async function loader({ params }: LoaderFunctionArgs) {
 
   const urlQueueInformation: string = `${BACKEND_URL}/queues/${queueId}/getQueueNumber`;
   const urlQueueStatus: string = `${BACKEND_URL}/queues/${queueId}/status`;
-  console.log(urlQueueStatus)
-  console.log(urlQueueInformation)
 
   const headers = {
     "Content-Type": "application/json",
@@ -54,6 +52,11 @@ export async function loader({ params }: LoaderFunctionArgs) {
       throw new Error("Failed to fetch info data.");
     }
     const infoData = await infoRes.json();
+    console.log(infoData.data)
+    if(!infoData.data){
+      return redirect("/shop")
+    }
+
     const bodyQueueStatus = JSON.stringify({ queue_user_got: infoData.data.queue_number })
     const statusRes = await fetch(urlQueueStatus, { headers: headers, method: "POST", body: bodyQueueStatus })
     if (!statusRes.ok) {
@@ -61,11 +64,7 @@ export async function loader({ params }: LoaderFunctionArgs) {
     }
     const statusData = await statusRes.json();
 
-
-    console.log(infoData)
-    console.log(statusData)
-
-    return json({
+    return {
       queueId,
       info: infoData, // Ensure this key exists in the response
       status: statusData,
@@ -73,10 +72,10 @@ export async function loader({ params }: LoaderFunctionArgs) {
         urlQueueInformation,
         urlQueueStatus,
       },
-    });
+    };
   } catch (error) {
-    console.error("Error fetching queue data:", error);
-    return json({ error: "Failed to load queue data." }, { status: 500 });
+    // console.error("Error fetching queue data:", error);
+    return { error: "Failed to load queue data." };
   }
 }
 

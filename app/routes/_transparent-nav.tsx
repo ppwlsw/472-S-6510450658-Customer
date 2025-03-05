@@ -1,6 +1,6 @@
-import { Outlet, Link } from "@remix-run/react";
 import { AlignJustify } from "lucide-react";
 import { useState } from "react";
+import { Link, Outlet } from "react-router";
 import SidebarMenu from "~/components/sidebar-menu";
 
 function TransparentNav() {

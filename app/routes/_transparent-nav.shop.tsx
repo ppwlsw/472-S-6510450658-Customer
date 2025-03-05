@@ -6,7 +6,7 @@ import GapController from "~/components/gap-control";
 import QueueCard from "~/components/queue-card";
 import XAxisSlide from "~/components/x-axis-slide";
 import MenuCard from "~/components/menu-card";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 
 interface Queue {
   id: number;
