@@ -49,9 +49,25 @@ export async function action({ request }: ActionFunctionArgs) {
       };
     }
 
+    if (response.data.role !== "CUSTOMER") {
+      return {
+        message: "",
+        error: "คุณไม่มีสิทธิ์เข้าใช้งาน",
+        status: 403,
+      };
+    }
+
     const token: string = response.data.token;
+    const user_id: string = response.data.id;
+    const role: string = response.data.role;
+
     const decrypted = (await requestDecryptToken(token)).data;
-    const cookie = await authCookie.serialize(decrypted);
+    const cookie = await authCookie.serialize({
+      token: decrypted,
+      user_id: user_id,
+      role: role,
+    });
+
     return redirect("/homepage", {
       headers: {
         "Set-Cookie": cookie,
