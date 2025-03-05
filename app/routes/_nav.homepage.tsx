@@ -1,9 +1,22 @@
+import type { LoaderFunctionArgs } from "react-router";
 import CurrentLocationCard from "~/components/current-location-card";
 import GapController from "~/components/gap-control";
 import LongShopCard from "~/components/long-shop-card";
 import NearbyShopCard from "~/components/nearby-shop-card";
 import SearchBar from "~/components/search-bar";
 import XAxisSlide from "~/components/x-axis-slide";
+import useAxiosInstance from "~/utils/axiosInstance";
+
+export async function loader({request} : LoaderFunctionArgs){
+    try{
+      const axios = useAxiosInstance(request)
+      const data : any = await axios.get("/shops")
+      console.log(data)
+
+    }catch(e){
+      console.log(e)
+    }
+}
 
 function HomePage(){
     return <div>
