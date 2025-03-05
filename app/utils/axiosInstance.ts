@@ -20,9 +20,9 @@ function useAxiosInstance(request: Request): AxiosInstance {
     axiosInstance.interceptors.request.use(
         async (config) => {
             const cookie:any = await getAuthCookie({request});
-            if (cookie.token.plain_text) {
+            if (cookie.token) {
                 try {
-                    config.headers.Authorization = `Bearer ${cookie.token.plain_text}`;
+                    config.headers.Authorization = `Bearer ${cookie.token}`;
                 } catch (e) {
                     throw e
                 }
@@ -49,14 +49,14 @@ function useAxiosInstance(request: Request): AxiosInstance {
         }
     );
 
-    // axiosRetry(axiosInstance, {
-    //     retries: 3,
-    //     shouldResetTimeout: true,
-    //     retryDelay: axiosRetry.exponentialDelay,
-    //     retryCondition: (error) => {
-    //         return axiosRetry.isNetworkOrIdempotentRequestError(error) || error.response?.status === 500;
-    //     },
-    // });
+    axiosRetry(axiosInstance, {
+        retries: 3,
+        shouldResetTimeout: true,
+        retryDelay: axiosRetry.exponentialDelay,
+        retryCondition: (error) => {
+            return axiosRetry.isNetworkOrIdempotentRequestError(error) || error.response?.status === 500;
+        },
+    });
 
     return axiosInstance;
 }
