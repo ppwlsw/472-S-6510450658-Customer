@@ -1,7 +1,6 @@
 import axios, { type AxiosInstance } from "axios";
 import axiosRetry from "axios-retry";
-import type { AuthCookie } from "~/models/authCookie";
-import { authCookie } from "~/services/cookie";
+import { authCookie, getAuthCookie } from "~/services/cookie";
 
 async function parseCookie(s: string) {
     return await authCookie.parse(s);
@@ -20,13 +19,10 @@ function useAxiosInstance(request: Request): AxiosInstance {
 
     axiosInstance.interceptors.request.use(
         async (config) => {
-            const cookie = request.headers.get("cookie");
-            if (cookie) {
+            const cookie:any = await getAuthCookie({request});
+            if (cookie.token) {
                 try {
-                    const data : AuthCookie = await parseCookie(cookie);
-                    if (data?.token.plain_text) {
-                        config.headers.Authorization = `Bearer ${data.token.plain_text}`;
-                    }
+                    config.headers.Authorization = `Bearer ${cookie.token}`;
                 } catch (e) {
                     throw e
                 }
