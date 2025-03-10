@@ -15,8 +15,10 @@ type Params = {
   "/scan": {};
   "/shop": {};
   "/profile-edit": {};
+  "/QueueStatus": {};
   "/register": {};
   "/login": {};
   "/homepage": {};
   "/map": {};
+  "/test": {};
 };
