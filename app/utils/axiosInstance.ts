@@ -1,10 +1,6 @@
 import axios, { type AxiosInstance } from "axios";
 import axiosRetry from "axios-retry";
-import { authCookie, getAuthCookie } from "~/services/cookie";
-
-async function parseCookie(s: string) {
-    return await authCookie.parse(s);
-}
+import {getAuthCookie } from "~/services/cookie";
 
 function useAxiosInstance(request: Request): AxiosInstance {
     const axiosInstance: AxiosInstance = axios.create({
