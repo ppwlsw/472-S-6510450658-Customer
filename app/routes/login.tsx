@@ -9,6 +9,7 @@ import {
 } from "react-router";
 import { requestDecryptToken, requestGoogleLogin, requestLogin } from "~/services/auth";
 import { authCookie, type AuthCookieProps } from "~/services/cookie";
+import { motion } from "framer-motion";
 
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -96,7 +97,9 @@ function GoogleLoginFetcherForm() {
 }
 
 function DefaultLoginFetcherForm() {
-  const fetcher = useFetcher<ActionMessage>();
+  const fetcher = useFetcher<ActionMessage>({
+    key: "DefaultLoginFetcher",
+  });
   return (
     <fetcher.Form
       method="POST"
@@ -111,13 +114,7 @@ function DefaultLoginFetcherForm() {
           label="รหัสผ่าน"
           placeholder="รหัสผ่าน"
         />
-        <p
-          className={`w-full text-red-500 text-center border border-red-500 bg-red-100 p-1 rounded-md ${
-            fetcher.data?.error ? "opacity-100" : "opacity-0"
-          }`}
-        >
-          {fetcher.data?.error ? fetcher.data.error : "error"}
-        </p>
+        
         <button
           name="_action"
           value="default_login"
@@ -126,6 +123,13 @@ function DefaultLoginFetcherForm() {
         >
           เข้าสู่ระบบ
         </button>
+        <p
+          className={`w-full text-red-500 text-center border border-red-500 bg-red-100 p-1 rounded-md ${
+            fetcher.data?.error && fetcher.state === 'idle' ? "opacity-100" : "opacity-0"
+          }`}
+        >
+          {fetcher.data?.error ? fetcher.data.error : "error"}
+        </p>
       </div>
     </fetcher.Form>
   );
@@ -210,9 +214,32 @@ function validateInput(formData: FormData) {
   return null;
 }
 
-export default function Login() {
+function LoadingModal({ state }: { state: string }) {
   return (
-    <div className="flex flex-col justify-end h-screen bg-primary-dark-50 overflow-hidden">
+    <motion.div
+      initial={{ opacity: 0, display: "none" }}
+      animate={{
+        opacity: 1,
+        display: state === "submitting" ? "flex" : "none",
+        transition: { duration: 1, ease: "easeIn" },
+      }}
+      className="flex flex-col justify-center items-center absolute w-full h-full z-50 text-obsidian"
+    >
+      <div className="relative w-full h-full bg-obsidian opacity-25"></div>
+      <div className="flex flex-col justify-center items-center gap-3 absolute rounded-lg shadow-lg bg-white-smoke p-6">
+        <p className="text-xl text-obsidian">กำลังโหลด...</p>
+        <span className="inline-block w-[20px] h-[20px] border-4 border-gray-400 rounded-full border-t-white-smoke animate-spin"></span>
+      </div>
+    </motion.div>
+  );
+}
+
+export default function Login() {
+  const fetcher = useFetcher<ActionMessage>({
+    key: "DefaultLoginFetcher",
+  });
+  return (
+    <div className="flex flex-col justify-end h-screen bg-primary-dark-50 overflow-hidden relative">
       <div className="flex flex-col justify-center items-center w-full absolute top-[15%]">
         <img src="/register-logo.png" alt="logo" className="h-60 w-auto" />
       </div>
@@ -238,6 +265,8 @@ export default function Login() {
           </div>
         </div>
       </div>
+
+      <LoadingModal state={fetcher.state} />
     </div>
   );
 }
