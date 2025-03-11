@@ -9,7 +9,7 @@ import useAxiosInstance from "~/utils/axiosInstance";
 
 export async function loader({request} : LoaderFunctionArgs){
     try{
-      const axios = useAxiosInstance(request)
+      const axios = useAxiosInstance(request, true)
       const data : any = await axios.get("/shops")
       console.log(data)
 

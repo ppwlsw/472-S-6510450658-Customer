@@ -2,7 +2,7 @@ import axios, { type AxiosInstance } from "axios";
 import axiosRetry from "axios-retry";
 import {getAuthCookie } from "~/services/cookie";
 
-function useAxiosInstance(request: Request): AxiosInstance {
+function useAxiosInstance(request: Request, raw = false): AxiosInstance {
     const axiosInstance: AxiosInstance = axios.create({
         baseURL: process.env.API_BASE_URL,
         headers: {
@@ -33,7 +33,7 @@ function useAxiosInstance(request: Request): AxiosInstance {
     );
 
     axiosInstance.interceptors.response.use(
-        async (response) => await response.data,
+        (response) => raw ? response : response.data?.data ?? response.data,
 
         (error) => {
             if (error.response) {
