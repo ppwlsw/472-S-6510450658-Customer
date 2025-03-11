@@ -1,24 +1,16 @@
-import { div } from "framer-motion/m";
 import { useEffect, useRef, useState } from "react";
 import { redirect, useLoaderData, useNavigate, type LoaderFunctionArgs } from "react-router";
-
-interface QueueStatus {
-  position: number;
-}
-
-interface QueueInformation {
-  data: {
-    shop_name: string;
-    queue_name: string;
-    queue_number: string;
-    shop_description: string;
-    queue_tag: string;
-  };
-}
+import { fetchQueueInformation, fetchQueueStatus } from "~/repositories/queue.repository";
+import { getAuthCookie, type AuthCookieProps } from "~/services/cookie";
+import type { QueueResponse, QueueStatus } from "~/types/queue";
 
 interface LoaderData {
   queueId: string;
-  info: QueueInformation;
+  user: {
+    userId: string
+    token: string
+  }
+  info: QueueResponse;
   status: QueueStatus;
   url: {
     urlQueueInformation: string;
@@ -26,7 +18,22 @@ interface LoaderData {
   };
 }
 
-export async function loader({ params }: LoaderFunctionArgs) {
+export async function loader({ request, params }: LoaderFunctionArgs) {
+  var user
+  try {
+    const cookie: AuthCookieProps = await getAuthCookie({ request });
+    user = {
+      userId: cookie.user_id,
+      token: cookie.token
+    }
+  } catch (error) {
+    console.error("Error occurred:", error);
+  }
+
+  if (!user) {
+    throw new Error("User id not found")
+  }
+
   const queueId = params.queueId;
   if (!queueId) {
     return redirect("/shop");
@@ -37,67 +44,43 @@ export async function loader({ params }: LoaderFunctionArgs) {
     throw new Error("BACKEND_URL is not set in the environment variables.");
   }
 
-  const urlQueueInformation: string = `${BACKEND_URL}/queues/${queueId}/getQueueNumber`;
-  const urlQueueStatus: string = `${BACKEND_URL}/queues/${queueId}/status`;
-
-  const headers = {
-    "Content-Type": "application/json",
-    Authorization: `Bearer 1|FhiYiHotoUVNQQb1vAaZeRS2XSlQqrNEg9cMra9T4bb0860a`, // Store the token in an env variable
-  };
+  const urlQueueInformation: string = `http://localhost/api/queues/${queueId}/getQueueNumber`;
+  const urlQueueStatus: string = `http://localhost/api/queues/${queueId}/status`;
 
   try {
-    const infoRes = await fetch(urlQueueInformation, {
-      headers: headers,
-      method: "GET",
-    });
-    if (!infoRes.ok) {
-      throw new Error("Failed to fetch info data.");
-    }
-    const infoData = await infoRes.json();
-    console.log(infoData.data);
-    if (!infoData.data) {
-      return redirect("/shop");
-    }
+    const infoRes = await fetchQueueInformation(queueId, request)
 
-    const bodyQueueStatus = JSON.stringify({
-      queue_user_got: infoData.data.queue_number,
-    });
-    const statusRes = await fetch(urlQueueStatus, {
-      headers: headers,
-      method: "POST",
-      body: bodyQueueStatus,
-    });
-    if (!statusRes.ok) {
-      throw new Error("Failed to fetch status data.");
+    if (!infoRes) {
+      return redirect("/shop")
     }
-    const statusData = await statusRes.json();
+    const statusRes = await fetchQueueStatus(queueId, infoRes.queue_number, request)
 
     return {
-      queueId,
-      info: infoData, // Ensure this key exists in the response
-      status: statusData,
+      queueId: queueId,
+      user: user,
+      info: infoRes, // Ensure this key exists in the response
+      status: statusRes,
       url: {
         urlQueueInformation,
         urlQueueStatus,
       },
     };
-  } catch (error) {
-    // console.error("Error fetching queue data:", error);
-    return { error: "Failed to load queue data." };
+  } catch (e) {
+    return { error: "Error ", e }
   }
 }
 export default function QueuePage() {
-  const { queueId, info, status, url } = useLoaderData() as LoaderData;
+  const { queueId, user, info, status, url } = useLoaderData() as LoaderData;
 
   const [isCustomerTurn, setIsCustomerTurn] = useState(false);
   const [dynamicStatus, setStatus] = useState<QueueStatus>(status);
   const eventSourceRef = useRef<EventSource | null>(null);
-  const queueUserGot = info.data.queue_number;
+  const queueUserGot = info.queue_number;
   const navigate = useNavigate();
 
   const headers = {
     "Content-Type": "application/json",
-    Authorization: `Bearer 1|FhiYiHotoUVNQQb1vAaZeRS2XSlQqrNEg9cMra9T4bb0860a`, // Store the token in an env variable
+    Authorization: "Bearer " + user.token, // Store the token in an env variable
   };
 
   const handleCancelQueue = async () => {
@@ -142,7 +125,8 @@ export default function QueuePage() {
     eventSource.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
-        const queue = "3_" + queueUserGot;
+        const queue = user.userId + "_" + queueUserGot;
+        console.log(queue)
 
         if (data.nextQueue === queue) {
           setIsCustomerTurn(true);
@@ -151,7 +135,7 @@ export default function QueuePage() {
 
         const headers = {
           "Content-Type": "application/json",
-          Authorization: `Bearer 1|FhiYiHotoUVNQQb1vAaZeRS2XSlQqrNEg9cMra9T4bb0860a`, // Store the token in an env variable
+          Authorization: "Bearer " + user.token, // Store the token in an env variable
         };
 
         if (data.event === "next" || data.event === "cancel") {
@@ -205,7 +189,7 @@ export default function QueuePage() {
     <div className={`${getBackgroundColor(status?.position)}`}>
       <div className="flex flex-col h-full pt-16">
         <div className="mt-10 text-white ml-4 mb-36">
-          <h1 className="text-2xl">{info?.data.shop_name}</h1>
+          <h1 className="text-2xl">{info?.shop_name}</h1>
           <p className="ml-2 text-l">
             โครงการ Box Space ห้องเลขที่ E3 ชั่้นที่ 1
           </p>
@@ -217,14 +201,14 @@ export default function QueuePage() {
             )} flex justify-center items-center`}
           >
             <h1 className="text-5xl font-bold text-[#242F40]">
-              {isCustomerTurn ? "NICE" : info?.data.queue_number}
+              {isCustomerTurn ? "NICE" : info?.queue_number}
             </h1>
           </div>
         </div>
         <div className="bg-white h-full rounded-t-[25px] flex justify-center">
           <div className="flex flex-col mt-48 items-center gap-10">
             <div className="text-[#242F40] text-3xl">Reservation for:</div>
-            <div className="text-2xl">{info?.data.shop_description}</div>
+            <div className="text-2xl">{info?.shop_description}</div>
 
             {isCustomerTurn ? (
               <div></div>

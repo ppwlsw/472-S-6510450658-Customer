@@ -19,7 +19,7 @@ function useAxiosInstance(request: Request): AxiosInstance {
 
     axiosInstance.interceptors.request.use(
         async (config) => {
-            const cookie:any = await getAuthCookie({request});
+            const cookie: any = await getAuthCookie({ request });
             if (cookie.token) {
                 try {
                     config.headers.Authorization = `Bearer ${cookie.token}`;

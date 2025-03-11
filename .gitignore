@@ -576,4 +576,5 @@ FodyWeavers.xsd
 # End of https://www.toptal.com/developers/gitignore/api/macos,visualstudio,node
 
 # new ersion of remix has .react-router
-.react-router/*
+.react-router/
+kuy

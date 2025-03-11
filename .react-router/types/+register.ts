@@ -19,7 +19,6 @@ type Params = {
   "/scan": {};
   "/shop": {};
   "/profile-edit": {};
-  "/queueCard": {};
   "/register": {};
   "/login": {};
   "/homepage": {};

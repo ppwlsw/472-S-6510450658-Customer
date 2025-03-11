@@ -81,6 +81,7 @@ function ShopPage() {
           headers: header,
         });
         if (!response.ok) throw new Error("Failed to fetch queues");
+        console.log(response)
         const data: Queues = await response.json();
         setQueues(data);
       } catch (error) {
@@ -110,7 +111,6 @@ function ShopPage() {
           <div className="ml-4 w-full">
             <GapController gap={5}>
               <h1 className="font-bold text-[20px] truncate w-[250px]">
-                ผู้พันธ์วิทยาศาสตร์ (เกษตร)
               </h1>
               <div className="flex flex-row items-center text-black">
                 <Hourglass width={16} height={16} />
