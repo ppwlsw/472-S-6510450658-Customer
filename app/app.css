@@ -9,6 +9,11 @@
   --color-obsidian: #0B1215;
 }
 
+.hide-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
 /* html,
 body {
   @apply bg-white dark:bg-gray-950;

@@ -1,5 +1,5 @@
 services:
-  remix-app:
+  customer.seeq.frontend:
     image: oven/bun:1.2.3
     ports:
       - "3002:5173"
@@ -29,4 +29,4 @@ services:
 networks:
   newton:
     external: true
-    name: seeq-backend_sail
+    name: seeq_sail

@@ -8,7 +8,7 @@ function Nav(){
     
     const toggleMenu = () => setIsMenuOpen((prev) => !prev);
 
-    return <div className='flex flex-col'>
+    return <div className='flex flex-col mb-0'>
             <nav className='flex flex-row bg-primary-dark justify-between items-center px-2 h-[10.4vh]'>
                 <div className='text-white' onClick={toggleMenu}>
                     <AlignJustify width={20} height={20}></AlignJustify>
