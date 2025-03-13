@@ -227,7 +227,7 @@ export default function Register() {
   return (
     <div className="h-screen flex flex-col justify-end bg-primary-dark-50 relative overflow-hidden">
       <div className="flex justify-center absolute top-[5%] w-full">
-        <img src="/register-logo.png" alt="logo" className="h-60 w-auto" />
+        <img src="/customer-logo.png" alt="logo" className="h-60 w-auto" />
       </div>
 
       <div className="grid grid-cols-1 justify-center items-center z-40">
