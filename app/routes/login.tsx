@@ -249,6 +249,11 @@ export default function Login() {
         </div>
         <div className="flex flex-col items-center gap-3 col-start-1 row-start-1 h-full w-full mt-32 bg-white borde shadow-lg shadow-black/80 rounded-t-[40px] p-16 pt-8 pb-0">
           <DefaultLoginFetcherForm />
+          <div className="flex justify-center items-center w-full gap-3 mt-4">
+            <Link to="/forget-password" prefetch="render" className="text-primary-dark">
+              ลืมรหัสผ่านรึป่าว?
+            </Link>
+          </div>
           <div className="flex text-center items-center w-full">
             <span className="flex-grow h-px bg-gray-300"></span>
             <span className="text-gray-500">Or</span>

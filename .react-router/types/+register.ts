@@ -18,6 +18,8 @@ type Params = {
   "/profile": {};
   "/scan": {};
   "/shop": {};
+  "/forget-password": {};
+  "/reset-password": {};
   "/profile-edit": {};
   "/register": {};
   "/login": {};
