@@ -66,10 +66,10 @@ function ShopPage() {
   };
 
 
-  const urlForQueues = "http://localhost/api/queues?shop_id=4";
+  const urlForQueues = "http://localhost/api/queues?shop_id=10";
   const header = {
     "Content-Type": "application/json",
-    Authorization: "Bearer 2|lp0HtLVxMAzDUF5Dw96TIkYjiFiF0YY93P7SFjVm55902459",
+    Authorization: "Bearer 2|dommNhGabAlKEd2DVNdvO6Ciild9o6jYjPIdh3d686b39307",
   };
 
   useEffect(() => {
