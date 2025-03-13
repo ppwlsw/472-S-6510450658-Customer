@@ -1,5 +1,10 @@
 import { ArrowLeft, LockKeyhole } from 'lucide-react';
-import { Link, useFetcher } from 'react-router';
+import { Link, useFetcher, type ActionFunctionArgs } from 'react-router';
+import useAxiosInstance from '~/utils/axiosInstance';
+
+export async function action({request}:ActionFunctionArgs) {
+    
+}
 
 function ForgetPasswordPage(){
     const fetcher = useFetcher();
@@ -17,7 +22,7 @@ function ForgetPasswordPage(){
             <h5 className='font-bold mb-2'>มีปัญหากับการ Loggin in รึป่าว?</h5>
             <p className='text-gray-500 text-center mx-3'>กรุณากรอกอีเมลของคุณเพื่อให้ระบบส่งอีเมลสำหรับแก้ไขรหัสผ่านไปให้คุณและตรวจสอบให้แน่ใจว่าไม่ใช่อีเมลปลอม</p>
 
-            <fetcher.Form className="w-full max-w-sm mt-4 mb-10">
+            <fetcher.Form method='post' className="w-full max-w-sm mt-4 mb-10">
                 <div className="flex flex-col w-full">
                     <input
                         id="email"
