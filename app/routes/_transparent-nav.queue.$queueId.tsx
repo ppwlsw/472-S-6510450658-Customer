@@ -22,12 +22,16 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   var user
   try {
     const cookie: AuthCookieProps = await getAuthCookie({ request });
+    if (!cookie) {
+      return redirect("/login")
+    }
+
     user = {
       userId: cookie.user_id,
       token: cookie.token
     }
   } catch (error) {
-    console.error("Error occurred:", error);
+    throw new Error("Cookie not found")
   }
 
   if (!user) {
@@ -208,7 +212,7 @@ export default function QueuePage() {
         <div className="bg-white h-full rounded-t-[25px] flex justify-center">
           <div className="flex flex-col mt-48 items-center gap-10">
             <div className="text-[#242F40] text-3xl">Reservation for:</div>
-            <div className="text-2xl">{info?.shop_description}</div>
+            <div className="text-2xl line-clamp-2 text-center px-4">{info?.shop_description}</div>
 
             {isCustomerTurn ? (
               <div></div>
@@ -229,7 +233,7 @@ export default function QueuePage() {
               <div className="text-green-500">Your Queue Now</div>
             ) : (
               <button
-                className="bg-primary-dark rounded-xl w-full text-white py-[15px]"
+                className={`${getBackgroundColor(status?.position)} rounded-3xl text-white py-[15px] w-10/12`}
                 onClick={handleCancelQueue}
               >
                 Cancel Queue
@@ -238,6 +242,6 @@ export default function QueuePage() {
           </div>
         </div>
       </div>
-    </div>
+    </div >
   );
 }

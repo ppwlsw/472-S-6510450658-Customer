@@ -8,7 +8,7 @@ interface QueueCardProps {
 export default function QueueCard({ queue }: QueueCardProps) {
     console.log(queue)
     return (
-        <div className="flex flex-row gap-4 border border-gray-300 rounded-lg py-2 w-80 items-center px-4 justify-center">
+        <div className="flex flex-row gap-4 border border-gray-300 rounded-lg py-2 w-10/12 items-center px-4 justify-center">
             <img className="rounded-full w-16 h-16" src="/teenoi.png" alt="fef" />
             <div className="flex flex-col">
                 <div>{queue?.shop_name || "Unknow shop"}</div>
