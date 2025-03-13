@@ -1,6 +1,6 @@
 import useAxiosInstance from "~/utils/axiosInstance";
 
-const AUTH_API = "/api/auth"
+const AUTH_API = "/auth"
 
 export async function sendForgetPasswordRequest(request: Request, email: string){
     try{
