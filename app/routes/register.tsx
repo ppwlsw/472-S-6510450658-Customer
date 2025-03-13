@@ -280,14 +280,14 @@ export default function Register() {
   return (
     <div className="relative h-svh w-svw bg-primary-dark-50 z-0">
       <div className="flex flex-col h-full w-full">
-        <div className="flex flex-col absolute h-2/6 w-full z-10">
+        <div className="flex flex-col absolute h-1/5 w-full z-10">
           <img
             src="/customer-logo.png"
             alt="customer-logo"
             className="h-full object-contain"
           />
         </div>
-        <div className="flex flex-col absolute h-4/6 w-full z-10 bottom-0 ">
+        <div className="flex flex-col absolute h-4/5 w-full z-10 bottom-0 ">
           <div className="h-full w-full relative opacity-90 rounded-t-4xl bg-white-smoke shadow-black/80"></div>
           <div className="flex flex-col justify-center items-center absolute top-0 h-full w-full">
             <div className="flex flex-col justify-center items-center h-1/10 w-full">
