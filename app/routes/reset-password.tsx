@@ -1,7 +1,8 @@
 import { useFetcher, type ActionFunctionArgs } from "react-router";
 import { z } from 'zod';
 import { useState } from 'react';
-import { EyeIcon, EyeOffIcon, CheckCircleIcon, XCircleIcon } from 'lucide-react';
+import { EyeIcon, EyeOffIcon, CheckCircleIcon, XCircleIcon, Loader2 } from 'lucide-react';
+import { sendResetPasswordRequest } from "~/repositories/auth.repository";
 
 const resetPasswordSchema = z.object({
     token: z.string().min(1, "Reset token is required"),
@@ -51,14 +52,8 @@ export async function action({ request}: ActionFunctionArgs): Promise<ActionMess
     }
 
     try {
-        // wait for logic
-        console.log(set);
-
-        // const response 
-
-        // if (!response.ok) {
-        //     throw new Error("Failed to reset password");
-        // }
+        const success = await sendResetPasswordRequest(request, set)
+        if(!success) throw Error("ไม่สามารถรีเซ็ทรหัสผ่านได้อาจเป็นเพราะ token ไม่ถูกต้องหรือหมดอายุแล้ว")
 
         return {
             success: true,
@@ -76,6 +71,8 @@ export async function action({ request}: ActionFunctionArgs): Promise<ActionMess
 function ResetPasswordPage() {
     const fetcher = useFetcher<ActionMessage>();
     const errors = fetcher.data?.error || {};
+    const isSuccess = fetcher.data?.success;
+    const successMessage = fetcher.data?.message;
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [passwordStrength, setPasswordStrength] = useState({
@@ -129,6 +126,12 @@ function ResetPasswordPage() {
                             <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start space-x-3">
                                 <XCircleIcon className="w-5 h-5 text-red-500 mt-0.5" />
                                 <span className="text-red-800 text-sm">{errors.general[0]}</span>
+                            </div>
+                        )}
+
+                        {fetcher.state === "submitting" && (
+                            <div className="flex justify-center py-4">
+                                <Loader2 className="animate-spin h-8 w-8 text-blue-600" />
                             </div>
                         )}
                         
