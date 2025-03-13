@@ -1,37 +1,115 @@
-import { useState } from "react";
+"use client";
+
+import { useEffect, useState } from "react";
 import { Hourglass, MapPin, Phone } from "lucide-react";
 import GapController from "~/components/gap-control";
 import QueueCard from "~/components/queue-card";
 import XAxisSlide from "~/components/x-axis-slide";
 import MenuCard from "~/components/menu-card";
+import { useNavigate } from "react-router";
+
+interface Queue {
+  id: number;
+  name: string;
+  description: string;
+  queue_image_url: string;
+  queue_counter: number;
+  is_available: boolean;
+  tag: string;
+}
+
+interface Queues {
+  data: Queue[];
+}
 
 function ShopPage() {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [selectedQueue, setSelectedQueue] = useState<number | null>(null);
+  const [queue, setQueue] = useState<Queue | null>(null);
+  const [queues, setQueues] = useState<Queues>({ data: [] });
+  const [loading, setLoading] = useState(false);
 
-  const handleQueueClick = (index: number) => {
+  const navigate = useNavigate();
+
+  const handleQueueClick = (index: number, queue: Queue) => {
     setSelectedQueue(index);
+    setQueue(queue);
   };
+
+  const handleBookQueue = async () => {
+    setLoading(true);
+    if (queue) {
+      console.log(queue.id)
+      const queueUserGot = `${queue.tag}${queue.queue_counter + 1}`;
+      const urlForBookQueue = `http://localhost/api/queues/${queue.id}/join`;
+      const fetchData = async () => {
+        try {
+          const response = await fetch(urlForBookQueue, {
+            method: "POST",
+            headers: header,
+            body: JSON.stringify({
+              queue_user_got: queueUserGot,
+            }),
+          });
+          const data = await response.json();
+          if (!response.ok) throw new Error("Failed to fetch queues");
+          navigate(`/queue/${queue?.id}`);
+        } catch (error) {
+          console.error(error);
+          console.log(error)
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchData();
+    }
+  };
+
+
+  const urlForQueues = "http://localhost/api/queues?shop_id=10";
+  const header = {
+    "Content-Type": "application/json",
+    Authorization: "Bearer 2|dommNhGabAlKEd2DVNdvO6Ciild9o6jYjPIdh3d686b39307",
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch(urlForQueues, {
+          method: "GET",
+          headers: header,
+        });
+        if (!response.ok) throw new Error("Failed to fetch queues");
+        console.log(response)
+        const data: Queues = await response.json();
+        setQueues(data);
+      } catch (error) {
+        console.error("Error fetching queues:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   return (
     <div className="relative pb-52">
       <img
-        src="public/starbuck.png"
+        src="/starbuck.png"
         alt="Shop"
         className="h-[28.8vh] w-full object-cover filter brightness-50"
       />
 
+      {/* card show information of shop show queue and location */}
       <div className="absolute top-[21vh] left-0 right-0 bg-white mx-3.5 px-4 py-2.5 rounded-xl shadow-lg">
         <div className="flex flex-row h-[11.8vh] items-center">
           <img
-            src="public/starbuck.png"
+            src="/starbuck.png"
             className="w-[80px] h-[80px] rounded-md object-cover"
           />
 
           <div className="ml-4 w-full">
             <GapController gap={5}>
               <h1 className="font-bold text-[20px] truncate w-[250px]">
-                ผู้พันธ์วิทยาศาสตร์ (เกษตร)
               </h1>
               <div className="flex flex-row items-center text-black">
                 <Hourglass width={16} height={16} />
@@ -48,6 +126,7 @@ function ShopPage() {
         </div>
       </div>
 
+      {/* tab book and  information */}
       <div className="mx-[20px] mt-[9vh]">
         <GapController gap={20}>
           <div className="flex gap-2.5">
@@ -56,20 +135,18 @@ function ShopPage() {
                 key={index}
                 onClick={() => setSelectedIndex(index)}
                 className={`relative pb-2 text-[16px] transition-all duration-300 
-                                    ${
-                                      selectedIndex === index
-                                        ? "font-semibold text-black"
-                                        : "text-gray-500"
-                                    }`}
+                                    ${selectedIndex === index
+                    ? "font-semibold text-black"
+                    : "text-gray-500"
+                  }`}
               >
                 {tab}
                 <span
                   className={`absolute left-0 bottom-0 w-full h-[2px] bg-black transition-all duration-300
-                                        ${
-                                          selectedIndex === index
-                                            ? "scale-x-100"
-                                            : "scale-x-0"
-                                        }
+                                        ${selectedIndex === index
+                      ? "scale-x-100"
+                      : "scale-x-0"
+                    }
                                     `}
                 />
               </button>
@@ -77,40 +154,32 @@ function ShopPage() {
           </div>
 
           <div
-            className={`transition-all duration-500 ease-in-out transform ${
-              selectedIndex === 0 ? "translate-x-0" : "-translate-x-full"
-            }`}
+            className={`transition-all duration-500 ease-in-out transform ${selectedIndex === 0 ? "translate-x-0" : "-translate-x-full"
+              }`}
           >
             {selectedIndex === 0 && (
               <GapController gap={20}>
                 <div className="py-2.5">
                   <XAxisSlide>
-                    {[
-                      "Queue 1",
-                      "Queue 2",
-                      "Queue 3",
-                      "Queue 4",
-                      "Queue 5",
-                      "Queue 6",
-                    ].map((queue, index) => (
+                    {queues.data.map((queue, index) => (
                       <QueueCard
-                        key={index}
-                        isAvailable={index % 2 === 0}
-                        onClick={() => handleQueueClick(index)}
+                        key={queue.id}
+                        isAvailable={queue.is_available}
+                        onClick={() => handleQueueClick(index, queue)}
                         isSelected={selectedQueue === index}
-                        name="Table A (1-2) Persons"
+                        name={queue.name}
                       />
                     ))}
                   </XAxisSlide>
                 </div>
-
+                {/* ข้อมูลรายการที่เลือก */}
                 <div className="py-2.5">
                   <GapController gap={10}>
                     <h1 className="font-bold text-[24px]">
                       ข้อมูลรายการที่เลือก
                     </h1>
                     <p className="font-normal text-[16px] text-gray-400 w-full whitespace-normal">
-                      โต๊ะประเภท A 1-2 คน, 1 เตา
+                      {queue?.description}
                     </p>
                   </GapController>
                 </div>
@@ -118,21 +187,19 @@ function ShopPage() {
             )}
           </div>
 
-          {selectedIndex === 0 && (
+          {selectedIndex === 0 && queue && (
             <button
               className="bg-primary-dark rounded-xl w-full text-white py-[15px]"
-              onClick={() =>
-                console.log(`Send to backend: User book ${selectedQueue}`)
-              }
+              onClick={handleBookQueue}
+              disabled={loading}
             >
               จองเลย
             </button>
           )}
 
           <div
-            className={`transition-all duration-500 ease-in-out transform ${
-              selectedIndex === 1 ? "translate-x-0" : "translate-x-full"
-            }`}
+            className={`transition-all duration-500 ease-in-out transform ${selectedIndex === 1 ? "translate-x-0" : "translate-x-full"
+              }`}
           >
             {selectedIndex === 1 && (
               <GapController gap={10}>
@@ -175,39 +242,39 @@ function ShopPage() {
                     <h1 className="text-[32px] font-normal">รายการสินค้า</h1>
                     <div className="grid grid-cols-4 gap-x-auto gap-y-4">
                       <MenuCard
-                        img_url="public/starbuck.png"
+                        img_url="/starbuck.png"
                         name="Coffee"
                       ></MenuCard>
                       <MenuCard
-                        img_url="public/starbuck.png"
+                        img_url="/starbuck.png"
                         name="Coffee"
                       ></MenuCard>
                       <MenuCard
-                        img_url="public/starbuck.png"
+                        img_url="/starbuck.png"
                         name="Coffee"
                       ></MenuCard>
                       <MenuCard
-                        img_url="public/starbuck.png"
+                        img_url="/starbuck.png"
                         name="Coffee"
                       ></MenuCard>
                       <MenuCard
-                        img_url="public/starbuck.png"
+                        img_url="/starbuck.png"
                         name="Coffee"
                       ></MenuCard>
                       <MenuCard
-                        img_url="public/starbuck.png"
+                        img_url="/starbuck.png"
                         name="Coffee"
                       ></MenuCard>
                       <MenuCard
-                        img_url="public/starbuck.png"
+                        img_url="/starbuck.png"
                         name="Coffee"
                       ></MenuCard>
                       <MenuCard
-                        img_url="public/starbuck.png"
+                        img_url="/starbuck.png"
                         name="Coffee"
                       ></MenuCard>
                       <MenuCard
-                        img_url="public/starbuck.png"
+                        img_url="/starbuck.png"
                         name="Coffee"
                       ></MenuCard>
                     </div>

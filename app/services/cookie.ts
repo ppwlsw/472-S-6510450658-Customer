@@ -19,7 +19,7 @@ export interface AuthCookieProps {
   role: string;
 }
 
-export async function getAuthCookie({request} : {request: Request}): Promise<AuthCookieProps> {
-  const cookie : AuthCookieProps = await authCookie.parse(request.headers.get("Cookie"));
+export async function getAuthCookie({ request }: { request: Request }): Promise<AuthCookieProps> {
+  const cookie: AuthCookieProps = await authCookie.parse(request.headers.get("Cookie"));
   return cookie;
 }
