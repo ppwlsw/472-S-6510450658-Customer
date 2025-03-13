@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { redirect, useLoaderData, useNavigate, type LoaderFunctionArgs } from "react-router";
 import { fetchQueueInformation, fetchQueueStatus } from "~/repositories/queue.repository";
 import { getAuthCookie, type AuthCookieProps } from "~/services/cookie";
-import type { QueueResponse, QueueStatus } from "~/types/queue";
+import type { QueueInformation, QueueStatus } from "~/types/queue";
 
 interface LoaderData {
   queueId: string;
@@ -10,7 +10,7 @@ interface LoaderData {
     userId: string
     token: string
   }
-  info: QueueResponse;
+  info: QueueInformation;
   status: QueueStatus;
   url: {
     urlQueueInformation: string;
@@ -52,12 +52,13 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const urlQueueStatus: string = `http://localhost/api/queues/${queueId}/status`;
 
   try {
-    const infoRes = await fetchQueueInformation(queueId, request)
+    const infoRes: QueueInformation = await fetchQueueInformation(queueId, request)
+    console.log(infoRes)
 
     if (!infoRes) {
       return redirect("/shop")
     }
-    const statusRes = await fetchQueueStatus(queueId, infoRes.queue_number, request)
+    const statusRes = await fetchQueueStatus(queueId, infoRes.data.queue_number, request)
 
     return {
       queueId: queueId,
@@ -79,7 +80,7 @@ export default function QueuePage() {
   const [isCustomerTurn, setIsCustomerTurn] = useState(false);
   const [dynamicStatus, setStatus] = useState<QueueStatus>(status);
   const eventSourceRef = useRef<EventSource | null>(null);
-  const queueUserGot = info.queue_number;
+  const queueUserGot = info.data.queue_number;
   const navigate = useNavigate();
 
   const headers = {
@@ -193,7 +194,7 @@ export default function QueuePage() {
     <div className={`${getBackgroundColor(status?.position)}`}>
       <div className="flex flex-col h-full pt-16">
         <div className="mt-10 text-white ml-4 mb-36">
-          <h1 className="text-2xl">{info?.shop_name}</h1>
+          <h1 className="text-2xl">{info?.data.shop_name}</h1>
           <p className="ml-2 text-l">
             โครงการ Box Space ห้องเลขที่ E3 ชั่้นที่ 1
           </p>
@@ -205,14 +206,14 @@ export default function QueuePage() {
             )} flex justify-center items-center`}
           >
             <h1 className="text-5xl font-bold text-[#242F40]">
-              {isCustomerTurn ? "NICE" : info?.queue_number}
+              {isCustomerTurn ? "NICE" : info?.data.queue_number}
             </h1>
           </div>
         </div>
         <div className="bg-white h-full rounded-t-[25px] flex justify-center">
           <div className="flex flex-col mt-48 items-center gap-10">
             <div className="text-[#242F40] text-3xl">Reservation for:</div>
-            <div className="text-2xl line-clamp-2 text-center px-4">{info?.shop_description}</div>
+            <div className="text-2xl line-clamp-2 text-center px-4">{info?.data.shop_description}</div>
 
             {isCustomerTurn ? (
               <div></div>

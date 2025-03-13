@@ -39,9 +39,8 @@ function ShopPage() {
   const handleBookQueue = async () => {
     setLoading(true);
     if (queue) {
-      const queueUserGot = `${queue.tag}${queue.queue_counter + 1}`;
-      console.log("user got:" + queueUserGot)
       console.log(queue.id)
+      const queueUserGot = `${queue.tag}${queue.queue_counter + 1}`;
       const urlForBookQueue = `http://localhost/api/queues/${queue.id}/join`;
       const fetchData = async () => {
         try {
@@ -67,10 +66,10 @@ function ShopPage() {
   };
 
 
-  const urlForQueues = "http://localhost/api/queues?shop_id=3";
+  const urlForQueues = "http://localhost/api/queues?shop_id=4";
   const header = {
     "Content-Type": "application/json",
-    Authorization: "Bearer 1|FhiYiHotoUVNQQb1vAaZeRS2XSlQqrNEg9cMra9T4bb0860a",
+    Authorization: "Bearer 2|lp0HtLVxMAzDUF5Dw96TIkYjiFiF0YY93P7SFjVm55902459",
   };
 
   useEffect(() => {

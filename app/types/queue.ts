@@ -14,12 +14,12 @@ export interface QueueStatus {
   position: number;
 }
 
-export interface Queue {
+export interface QueueReserved {
   shop_name: string;
   created_at: string;
   shop_image_url: string;
 }
 
-export interface Queues {
-  data: Queue[];
+export interface QueueReserveds {
+  data: QueueReserved[]
 }

@@ -1,15 +1,15 @@
 import { useLoaderData, type LoaderFunctionArgs } from "react-router";
 import { getAuthCookie, type AuthCookieProps } from "~/services/cookie";
-import type { Queues } from "~/types/queue";
 import { fetchQueueReservedInfo } from "~/repositories/queue.repository";
 import { fetchUserInfo } from "~/repositories/user.repository";
-import type { UserResponse } from "~/types/user";
+import type { User } from "~/types/user";
 import QueueCard from "~/components/queue-card-profile";
+import type { QueueReserveds } from "~/types/queue";
 
 
 interface LoaderData {
-    user: UserResponse
-    queues: Queues
+    user: User
+    queues: QueueReserveds
 }
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -27,7 +27,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     if (!user) {
         throw new Error("User Not Found")
     }
-    const userData = await fetchUserInfo(user.userId, request);
+    const userData: User = await fetchUserInfo(user.userId, request);
     const queuesData = await fetchQueueReservedInfo(request);
 
     return {
@@ -45,8 +45,8 @@ export default function Profile() {
                 <img className="rounded-full z-10 inline-block size-40 absolute left-1/2 transform -translate-x-1/2 translate-y-1/2 border-2 border-white object-cover" src="/teenoi.png" alt="feijf" width={40} height={40} />
             </div>
             <div className="flex flex-col items-center pt-24 gap-10">
-                <div className="font-bold text-3xl">{user.name}</div>
-                <div className="text-xl">{user.phone}</div>
+                <div className="font-bold text-3xl">{user.data.name}</div>
+                <div className="text-xl">{user.data.phone}</div>
                 <div className="text-md">Edit Profile</div>
             </div>
             <div className="mt-10 ml-14 font-bold text-2xl">ประวัติการจอง</div>
