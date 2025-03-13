@@ -14,9 +14,11 @@ type Params = {
   "/queue/:queueId": {
     "queueId": string;
   };
+  "/shop/:shopID": {
+    "shopID": string;
+  };
   "/profile": {};
   "/scan": {};
-  "/shop": {};
   "/forget-password": {};
   "/reset-password": {};
   "/profile-edit": {};
