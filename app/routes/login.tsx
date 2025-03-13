@@ -221,9 +221,9 @@ function validateInput(formData: FormData) {
   return null;
 }
 
-function LoginModal() {
+function LoginModal({ fetcherKey }: {fetcherKey: string}) {
   const fetcher = useFetcher<ActionMessage>({
-    key: "DefaultLoginFetcher",
+    key: fetcherKey,
   });
   return (
     <motion.div
@@ -287,20 +287,17 @@ function LoginModal() {
 }
 
 export default function Login() {
-  const fetcher = useFetcher<ActionMessage>({
-    key: "DefaultLoginFetcher",
-  });
   return (
     <div className="relative h-svh w-svw bg-primary-dark-50 z-0">
       <div className="flex flex-col h-full w-full">
-        <div className="flex flex-col absolute h-1/3 w-full z-10">
+        <div className="flex flex-col absolute h-2/5 w-full z-10">
           <img
             src="/customer-logo.png"
             alt="customer-logo"
             className="h-full object-contain"
           />
         </div>
-        <div className="flex flex-col absolute h-2/3 w-full z-10 bottom-0 ">
+        <div className="flex flex-col absolute h-3/5 w-full z-10 bottom-0 ">
           <div className="h-full w-full relative opacity-90 rounded-t-4xl bg-white-smoke shadow-black/80"></div>
           <div className="flex flex-col justify-center items-center absolute top-0 h-full w-full">
             <div className="flex flex-col justify-center items-center h-1/10 w-full">
@@ -347,7 +344,7 @@ export default function Login() {
           </div>
         </div>
       </div>
-      <LoginModal />
+      <LoginModal fetcherKey="DefaultLoginFetcher"/>
     </div>
   );
 }

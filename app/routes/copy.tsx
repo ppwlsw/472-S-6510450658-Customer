@@ -1,4 +1,4 @@
-import { CircleX, Eye, EyeClosed, MailCheck } from "lucide-react";
+import { Eye, EyeClosed } from "lucide-react";
 import { useState } from "react";
 import {
   Link,
@@ -17,12 +17,6 @@ interface ActionMessage {
 
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
-  const action: string = formData.get("_action") as string;
-
-  if (action === "reset") {
-    return null;
-  }
-
   formData.set("email", (formData.get("email") as string).toLowerCase());
   const error = validateInput(formData);
 
@@ -45,11 +39,7 @@ export async function action({ request }: ActionFunctionArgs) {
     };
   }
 
-  return {
-    message: "ok",
-    error: "",
-    status: response.status,
-  };
+  return redirect("/successful-register");
 }
 
 function validateInput(formData: FormData) {
@@ -93,17 +83,17 @@ function validateInput(formData: FormData) {
   return null;
 }
 
-function RegisterFetcherForm() {
+function FetcherForm() {
   const fetcher = useFetcher<ActionMessage>({
     key: "RegisterFetcher",
   });
   return (
     <fetcher.Form
       method="POST"
-      className="flex flex-col w-full rounded-t-[40px]"
+      className="flex flex-col bg-white  w-full shadow-lg shadow-black/80 rounded-t-[40px] h-full"
     >
       <div
-        className="flex flex-col items-center justify-center h-full w-full
+        className="flex flex-col items-center justify-center h-full w-full p-16 pt-8
             [&>div]:w-full gap-6"
       >
         <InputForm name="email" type="text" label="อีเมล" placeholder="อีเมล" />
@@ -134,10 +124,28 @@ function RegisterFetcherForm() {
 
         <button
           type="submit"
-          className="bg-primary-dark text-white-smoke text-lg p-2 rounded-full w-full"
+          className="bg-primary-dark text-white text-xl p-4 rounded-full w-full"
         >
           สมัครสมาชิก
         </button>
+
+        <div className="flex flex-col w-full gap-4 justify-center items-center text-center">
+          <p
+            className={`w-full text-red-500 border border-red-500 bg-red-100 p-1 rounded-md ${
+              fetcher.data?.error && fetcher.state === "idle" ? "opacity-100" : "opacity-0"
+            }`}
+          >
+            {fetcher.data?.error ? fetcher.data.error : "ไม่เกิดข้อผิดพลาด"}
+          </p>
+        </div>
+
+        <p>
+          <span className="text-gray-500">มีบัญชีอยู่แล้ว? </span>
+
+          <Link to="/login" prefetch="viewport" className="text-primary-dark">
+            เข้าสู่ระบบ
+          </Link>
+        </p>
       </div>
     </fetcher.Form>
   );
@@ -156,7 +164,7 @@ function InputForm({ name, type, label, placeholder }: InputFormProps) {
   return (
     <div className="flex flex-col relative [&:has(input:focus)>label]:opacity-100">
       <label
-        className="opacity-0 absolute -top-4 left-4 bg-white-smoke p-1"
+        className="opacity-0 absolute -top-4 left-4 bg-white p-1"
         htmlFor={name}
       >
         {label}
@@ -192,133 +200,48 @@ function InputForm({ name, type, label, placeholder }: InputFormProps) {
   );
 }
 
-function RegisterModal({ fetcherKey }: { fetcherKey: string }) {
-  const fetcher = useFetcher<ActionMessage>({
-    key: fetcherKey,
-  });
+function LoadingModal({ state }: { state: string }) {
   return (
     <motion.div
       initial={{ opacity: 0, display: "none" }}
       animate={{
         opacity: 1,
-        display:
-          fetcher.formData?.get("_action") != "reset" &&
-          (fetcher.state === "submitting" || fetcher.data?.error != undefined)
-            ? "flex"
-            : "none",
-        transition: {
-          duration: fetcher.formData?.get("_action") != "reset" ? 1 : 0,
-          ease: "easeIn",
-        },
+        display: state === "submitting" ? "flex" : "none",
+        transition: { duration: 1, ease: "easeIn" },
       }}
-      className="absolute z-50 top-0 flex flex-col justify-center items-center w-full h-full text-obsidian"
-      onClick={() => {
-        fetcher.submit(
-          {
-            _action: "reset",
-          },
-          {
-            method: "POST",
-          }
-        );
-      }}
+      className="flex flex-col justify-center items-center absolute w-full h-full z-50 text-obsidian"
     >
       <div className="relative w-full h-full bg-obsidian opacity-25"></div>
-      <div className="flex flex-col justify-center items-center gap-3 absolute rounded-lg shadow-lg bg-white-smoke p-6 m-20 text-center">
-        {fetcher.data?.message == "ok" ? (
-          <motion.div
-            initial={{
-              rotate: 90,
-            }}
-            animate={{
-              rotate: 0,
-              transition: { duration: 0.3, ease: "easeIn" },
-            }}
-          >
-            <MailCheck size={36} color="#4CAF50" />
-          </motion.div>
-        ) : fetcher.data?.error != undefined ? (
-          <motion.div
-            initial={{
-              rotate: 90,
-            }}
-            animate={{
-              rotate: 0,
-              transition: { duration: 0.3, ease: "easeIn" },
-            }}
-          >
-            <CircleX size={36} color="#F44336" />
-          </motion.div>
-        ) : (
-          <span className="inline-block w-[20px] h-[20px] border-4 border-gray-400 rounded-full border-t-white-smoke animate-spin"></span>
-        )}
-        <motion.p
-          animate={{
-            opacity: 1,
-            color:
-              fetcher.data?.message == "ok"
-                ? "#4CAF50"
-                : fetcher.data?.error != undefined
-                ? "#F44336"
-                : "#0b1215",
-            transition: { duration: 0.3, ease: "easeIn" },
-          }}
-          className="text-xl text-obsidian "
-        >
-          {fetcher.data?.message == "ok"
-            ? "กรุณายืนยันอีเมลของท่านเพื่อใช้ในการเข้าสู่ระบบ"
-            : fetcher.data?.error != undefined
-            ? fetcher.data.error
-            : "กำลังโหลด"}
-        </motion.p>
+      <div className="flex flex-col justify-center items-center gap-3 absolute rounded-lg shadow-lg bg-white-smoke p-6">
+        <p className="text-xl text-obsidian">กำลังโหลด...</p>
+        <span className="inline-block w-[20px] h-[20px] border-4 border-gray-400 rounded-full border-t-white-smoke animate-spin"></span>
       </div>
     </motion.div>
   );
 }
 
 export default function Register() {
+  const fetcher = useFetcher<ActionMessage>({
+    key: "RegisterFetcher",
+  }); 
   return (
-    <div className="relative h-svh w-svw bg-primary-dark-50 z-0">
-      <div className="flex flex-col h-full w-full">
-        <div className="flex flex-col absolute h-2/6 w-full z-10">
-          <img
-            src="/customer-logo.png"
-            alt="customer-logo"
-            className="h-full object-contain"
-          />
+    <div className="h-screen flex flex-col justify-end bg-primary-dark-50 relative overflow-hidden">
+      <div className="flex justify-center absolute top-[5%] w-full">
+        <img src="/customer-logo.png" alt="logo" className="h-60 w-auto" />
+      </div>
+
+      <div className="grid grid-cols-1 justify-center items-center z-40">
+        <div className="h-full col-start-1 row-start-1 bg-gray-100 rounded-t-[40px]">
+          <p className="mt-4 text-center text-3xl">ลงทะเบียน</p>
         </div>
-        <div className="flex flex-col absolute h-4/6 w-full z-10 bottom-0 ">
-          <div className="h-full w-full relative opacity-90 rounded-t-4xl bg-white-smoke shadow-black/80"></div>
-          <div className="flex flex-col justify-center items-center absolute top-0 h-full w-full">
-            <div className="flex flex-col justify-center items-center h-1/10 w-full">
-              <p className="text-3xl text-obsidian ">สมัครสมาชิก</p>
-            </div>
-            <div className="flex flex-col h-9/10 w-full bg-white-smoke rounded-t-4xl shadow-black">
-              <div className="flex flex-col justify-between items-center h-full w-full p-8 pt-4 pb-4">
-                <div className="flex flex-col justify-center gap-2 h-full w-full">
-                  <div className="flex flex-col h-fit w-full">
-                    <RegisterFetcherForm />
-                  </div>
-                  <div className="flex flex-col justify-center items-center h-fit w-full"></div>
-                </div>
-                <div className="flex justify-center items-center w-full gap-3 h-fit">
-                  <p>
-                    <span className="text-gray-500">มีบัญชีอยู่แล้ว? </span>
-                    <Link
-                      to="/login"
-                      prefetch="viewport"
-                      className="text-primary-dark"
-                    >
-                      เข้าสู่ระบบ
-                    </Link>
-                  </p>
-                </div>
-              </div>
-            </div>
+        <div className="col-start-1 row-start-1 h-full">
+          <div className="mt-16 h-full">
+            <FetcherForm />
           </div>
         </div>
       </div>
-      <RegisterModal fetcherKey="RegisterFetcher" />
+
+      <LoadingModal state={fetcher.state} />
     </div>
   );
 }
