@@ -11,7 +11,7 @@ function XAxisSlide({ children, gap = 18 }: GapControllerProps) {
         className="flex flex-row overflow-x-scroll whitespace-nowrap hide-scrollbar"
         style={{ 
           gap: `${gap}px`,
-          paddingRight: '24px' // Add padding to ensure the last item is fully visible and scrollable
+          paddingRight: '24px'
         }}
       >
         {React.Children.map(children, (child) => (

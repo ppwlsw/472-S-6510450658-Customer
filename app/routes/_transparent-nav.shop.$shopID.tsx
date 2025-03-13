@@ -56,7 +56,7 @@ function ShopPage() {
   };
 
   return (
-    <div className="relative pb-52">
+    <div className="relative pb-52 overflow-x-hidden">
       <img
         src="/starbuck.png"
         alt="Shop"
@@ -121,7 +121,7 @@ function ShopPage() {
           >
             {selectedIndex === 0 && (
               <GapController gap={20}>
-                <div className="py-2.5">
+                <div className="w-[97svw] py-2.5 overflow-x-scroll">
                   <XAxisSlide>
                     {queues.map((queue, index) => (
                       <QueueCard
