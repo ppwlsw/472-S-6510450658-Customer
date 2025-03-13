@@ -7,17 +7,20 @@ interface GapControllerProps {
 
 function XAxisSlide({ children, gap = 18 }: GapControllerProps) {
     return (
-        <div 
-            className="flex flex-row overflow-x-auto whitespace-nowrap hide-scrollbar" 
-            style={{ gap: `${gap}px` }}
-        >
-            {React.Children.map(children, (child) => (
-                <div style={{ flexShrink: 0 }}>
-                    {child}
-                </div>
-            ))}
-        </div>
+      <div
+        className="flex flex-row overflow-x-scroll whitespace-nowrap hide-scrollbar"
+        style={{ 
+          gap: `${gap}px`,
+          paddingRight: '24px' // Add padding to ensure the last item is fully visible and scrollable
+        }}
+      >
+        {React.Children.map(children, (child) => (
+          <div style={{ flexShrink: 0 }}>
+            {child}
+          </div>
+        ))}
+      </div>
     );
-}
-
-export default XAxisSlide;
+  }
+  
+  export default XAxisSlide;
