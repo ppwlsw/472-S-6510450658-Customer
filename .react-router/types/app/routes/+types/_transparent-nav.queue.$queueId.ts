@@ -1,18 +1,19 @@
 // React Router generated types for route:
-// routes/successful-register.tsx
+// routes/_transparent-nav.queue.$queueId.tsx
 
 import type * as T from "react-router/route-module"
 
 import type { Info as Parent0 } from "../../+types/root.js"
+import type { Info as Parent1 } from "./_transparent-nav.js"
 
-type Module = typeof import("../successful-register.js")
+type Module = typeof import("../_transparent-nav.queue.$queueId.js")
 
 export type Info = {
-  parents: [Parent0],
-  id: "routes/successful-register"
-  file: "routes/successful-register.tsx"
-  path: "successful-register"
-  params: {} & { [key: string]: string | undefined }
+  parents: [Parent0, Parent1],
+  id: "routes/_transparent-nav.queue.$queueId"
+  file: "routes/_transparent-nav.queue.$queueId.tsx"
+  path: "queue/:queueId"
+  params: {"queueId": string} & { [key: string]: string | undefined }
   module: Module
   loaderData: T.CreateLoaderData<Module>
   actionData: T.CreateActionData<Module>
@@ -29,6 +30,8 @@ export namespace Route {
   export type HeadersArgs = T.HeadersArgs
   export type HeadersFunction = (args: HeadersArgs) => Headers | HeadersInit
 
+  export type unstable_MiddlewareFunction = T.CreateServerMiddlewareFunction<Info>
+  export type unstable_ClientMiddlewareFunction = T.CreateClientMiddlewareFunction<Info>
   export type LoaderArgs = T.CreateServerLoaderArgs<Info>
   export type ClientLoaderArgs = T.CreateClientLoaderArgs<Info>
   export type ActionArgs = T.CreateServerActionArgs<Info>

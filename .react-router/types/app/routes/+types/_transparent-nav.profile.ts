@@ -1,18 +1,18 @@
 // React Router generated types for route:
-// routes/_transparent-nav.shop.tsx
+// routes/_transparent-nav.profile.tsx
 
 import type * as T from "react-router/route-module"
 
 import type { Info as Parent0 } from "../../+types/root.js"
 import type { Info as Parent1 } from "./_transparent-nav.js"
 
-type Module = typeof import("../_transparent-nav.shop.js")
+type Module = typeof import("../_transparent-nav.profile.js")
 
 export type Info = {
   parents: [Parent0, Parent1],
-  id: "routes/_transparent-nav.shop"
-  file: "routes/_transparent-nav.shop.tsx"
-  path: "shop"
+  id: "routes/_transparent-nav.profile"
+  file: "routes/_transparent-nav.profile.tsx"
+  path: "profile"
   params: {} & { [key: string]: string | undefined }
   module: Module
   loaderData: T.CreateLoaderData<Module>
@@ -30,6 +30,8 @@ export namespace Route {
   export type HeadersArgs = T.HeadersArgs
   export type HeadersFunction = (args: HeadersArgs) => Headers | HeadersInit
 
+  export type unstable_MiddlewareFunction = T.CreateServerMiddlewareFunction<Info>
+  export type unstable_ClientMiddlewareFunction = T.CreateClientMiddlewareFunction<Info>
   export type LoaderArgs = T.CreateServerLoaderArgs<Info>
   export type ClientLoaderArgs = T.CreateClientLoaderArgs<Info>
   export type ActionArgs = T.CreateServerActionArgs<Info>
