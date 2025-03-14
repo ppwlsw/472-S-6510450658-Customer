@@ -1,6 +1,6 @@
 import axios, { type AxiosInstance } from "axios";
 import axiosRetry from "axios-retry";
-import { getAuthCookie } from "~/services/cookie";
+import { getAuthCookie } from "~/utils/cookie";
 
 function useAxiosInstance(
     request: Request,

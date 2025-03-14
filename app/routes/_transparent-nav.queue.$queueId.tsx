@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { redirect, useLoaderData, useNavigate, type LoaderFunctionArgs } from "react-router";
 import { fetchQueueInformation, fetchQueueStatus } from "~/repositories/queue.repository";
-import { getAuthCookie, type AuthCookieProps } from "~/services/cookie";
+import { getAuthCookie, type AuthCookieProps } from "~/utils/cookie";
 import type { QueueInformation, QueueStatus } from "~/types/queue";
 
 interface LoaderData {

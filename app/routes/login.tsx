@@ -1,4 +1,4 @@
-import { CircleX, Eye, EyeClosed } from "lucide-react";
+import { CircleX, Eye, EyeClosed, Fence } from "lucide-react";
 import { useState } from "react";
 import {
   Link,
@@ -11,18 +11,28 @@ import {
   requestDecryptToken,
   requestGoogleLogin,
   requestLogin,
-} from "~/services/auth";
-import { authCookie, type AuthCookieProps } from "~/services/cookie";
+} from "~/utils/auth";
+import { authCookie, type AuthCookieProps } from "~/utils/cookie";
 import { motion } from "framer-motion";
-import { fetchUserInfo } from "~/repositories/user.repository";
+import {
+  defaultFetcherUserInfo,
+} from "~/repositories/user.repository";
 import { DataCenter } from "~/provider/datacenter";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
   const token: string = url.searchParams.get("token") as string;
+  const user_id: string = url.searchParams.get("id") as string;
   if (token) {
-    const decrypted = (await requestDecryptToken(token)).data;
+    const decrypted = (await requestDecryptToken(token)).data
+      .plain_text as string;
     const cookie = await authCookie.serialize(decrypted);
+
+    const user = await defaultFetcherUserInfo(parseInt(user_id), decrypted);
+
+    DataCenter.addData("user_image_info", user.data.image_url as string);
+    DataCenter.addData("user_name_info", user.data.name as string);
+
     return redirect("/homepage", {
       headers: {
         "Set-Cookie": cookie,
@@ -80,10 +90,10 @@ export async function action({ request }: ActionFunctionArgs) {
       role: role,
     } as AuthCookieProps);
 
-    const user = await fetchUserInfo(user_id, request)
+    const user = await defaultFetcherUserInfo(user_id, decrypted);
 
-    DataCenter.addData("user_image_info", user.data.image_url as string)
-    DataCenter.addData("user_name_info",user.data.name as string)
+    DataCenter.addData("user_image_info", user.data.image_url as string);
+    DataCenter.addData("user_name_info", user.data.name as string);
 
     return redirect("/homepage", {
       headers: {
@@ -102,16 +112,16 @@ function GoogleLoginFetcherForm() {
   return (
     <fetcher.Form
       method="POST"
-      className="flex justify-center items-center gap-6 bg-white-smoke w-full rounded-full p-2 border border-black"
+      className="flex flex-col justify-center items-center gap-6 bg-white-smoke w-full rounded-full p-2 border border-black"
     >
-      <img src="/google-logo.png" alt="google-logo" className="h-6 w-auto" />
       <button
         name="_action"
         value="google_login"
         type="submit"
-        className="text-lg"
+        className="flex flex-row items-center justify-center text-lg w-full gap-4"
       >
-        เข้าสู่ระบบด้วย Google
+        <img src="/google-logo.png" alt="google-logo" className="h-6 w-auto" />
+        <p>เข้าสู่ระบบด้วย Google</p>
       </button>
     </fetcher.Form>
   );
@@ -228,7 +238,7 @@ function validateInput(formData: FormData) {
   return null;
 }
 
-function LoginModal({ fetcherKey }: {fetcherKey: string}) {
+function LoginModal({ fetcherKey }: { fetcherKey: string }) {
   const fetcher = useFetcher<ActionMessage>({
     key: fetcherKey,
   });
@@ -294,8 +304,12 @@ function LoginModal({ fetcherKey }: {fetcherKey: string}) {
 }
 
 export default function Login() {
+  const fetcher = useFetcher<ActionMessage>({
+    key: "DefaultLoginFetcher",
+  }); 
   return (
     <div className="relative h-svh w-svw bg-primary-dark-50 z-0">
+      <h1 className="absolute opacity-0 top-0 left-0 z-40">{fetcher.state}</h1>
       <div className="flex flex-col h-full w-full">
         <div className="flex flex-col absolute h-2/6 w-full z-10">
           <img
@@ -351,7 +365,7 @@ export default function Login() {
           </div>
         </div>
       </div>
-      <LoginModal fetcherKey="DefaultLoginFetcher"/>
+      <LoginModal fetcherKey="DefaultLoginFetcher" />
     </div>
   );
 }

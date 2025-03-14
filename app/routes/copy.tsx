@@ -6,7 +6,7 @@ import {
   useFetcher,
   type ActionFunctionArgs,
 } from "react-router";
-import { requestRegister } from "~/services/auth";
+import { requestRegister } from "~/utils/auth";
 import { motion } from "framer-motion";
 
 interface ActionMessage {
