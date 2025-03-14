@@ -33,11 +33,13 @@ function TransparentNav() {
                 </div>
 
                 <div className='rounded-full bg-zinc-600 w-[47px] h-[47px] overflow-hidden'>
+                <Link to="/profile">
                 <img
                     src={image}
                     alt="User profile"
                     className="object-cover w-full h-full"
                 />
+                </Link>
                 </div>
             </nav>
 
