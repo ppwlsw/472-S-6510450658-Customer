@@ -217,6 +217,7 @@ function HomePage() {
                   {filteredShops.map((shop, index) => (
                     <LongShopCard
                       key={shop.id}
+                      shop_id={shop.id}
                       img_url={shop.image_uri || "public/starbuck.png"}
                       name={shop.name}
                       distance={distances[shop.id] || ""}
