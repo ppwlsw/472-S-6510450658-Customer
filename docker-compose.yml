@@ -2,7 +2,7 @@ services:
   customer.seeq.frontend:
     image: oven/bun:1.2.3
     ports:
-      - "3002:5173"
+      - "3101:5173"
     volumes:
       - type: bind
         source: .
