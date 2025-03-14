@@ -1,6 +1,6 @@
 "use client";
 
-import {useState } from "react";
+import { useState } from "react";
 import { Hourglass, Loader2, MapPin, Phone } from "lucide-react";
 import GapController from "~/components/gap-control";
 import QueueCard from "~/components/queue-card";
@@ -10,31 +10,31 @@ import { redirect, useFetcher, useLoaderData, type ActionFunctionArgs, type Load
 import { getShopInfoByID, sendBookQueueRequest } from "~/repositories/shop.repository";
 import type { Queue } from "~/types/queue";
 
-interface ActionMessage{
+interface ActionMessage {
   success: boolean;
   message: string;
 }
 
-export async function loader({request, params}:LoaderFunctionArgs) {
+export async function loader({ request, params }: LoaderFunctionArgs) {
   const shopID = params.shopID;
 
-  if(!shopID)throw redirect("/");
+  if (!shopID) throw redirect("/");
 
-  try{
-    const data:Queue[] = await getShopInfoByID(request, shopID);
-  
+  try {
+    const data: Queue[] = await getShopInfoByID(request, shopID);
+
     return data
-  }catch(e){
+  } catch (e) {
     return []
   }
 }
 
-export async function action({request}:ActionFunctionArgs) {
+export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
-  const queue:Queue = JSON.parse(formData.get("queue") as string);
+  const queue: Queue = JSON.parse(formData.get("queue") as string);
 
   const success = await sendBookQueueRequest(request, queue);
-  return (success)? redirect(`/queue/${queue?.id}`) : {
+  return (success) ? redirect(`/queue/${queue?.id}`) : {
     success,
     message: "จองคิวไม่สำเร็จ กรุณาลองอีกครั้ง"
   }
@@ -154,17 +154,17 @@ function ShopPage() {
               <input type="hidden" name="queue" value={JSON.stringify(queue)} />
               {fetcher.state === "submitting" ? (
                 <div className="flex justify-center py-4">
-                    <Loader2 className="animate-spin h-8 w-8 text-blue-600" />
+                  <Loader2 className="animate-spin h-8 w-8 text-blue-600" />
                 </div>
-              ):
-              <button
-                className="bg-primary-dark rounded-xl w-full text-white py-[15px]"
-                id="bookQueue"
-                name="bookQueue"
-                type="submit"
-              >
-                จองเลย
-              </button>}
+              ) :
+                <button
+                  className="bg-primary-dark rounded-xl w-full text-white py-[15px]"
+                  id="bookQueue"
+                  name="bookQueue"
+                  type="submit"
+                >
+                  จองเลย
+                </button>}
             </fetcher.Form>
           )}
 

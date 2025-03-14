@@ -48,7 +48,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const urlQueueInformation: string = `${process.env.NETWORK_URL}/api/queues/${queueId}/getQueueNumber`;
   const urlQueueStatus: string = `${process.env.NETWORK_URL}/api/queues/${queueId}/status`;
   const urlForCancelQueue: string = `${process.env.NETWORK_URL}/api/queues/${queueId}/cancel`;
-  const urlSubscribe: string = `${process.env.NETWORK_URL}/api/queues/${queueId}/subscribe`;
+  const urlSubscribe: string = `${process.env.NETWORK_URL}:3001/api/queues/${queueId}/subscribe`;
 
   try {
     const infoRes: QueueInformation = await fetchQueueInformation(queueId, request)
