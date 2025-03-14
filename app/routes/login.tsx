@@ -83,6 +83,7 @@ export async function action({ request }: ActionFunctionArgs) {
     const user = await fetchUserInfo(user_id, request)
 
     DataCenter.addData("user_image_info", user.data.image_url as string)
+    DataCenter.addData("user_name_info",user.data.name as string)
 
     return redirect("/homepage", {
       headers: {

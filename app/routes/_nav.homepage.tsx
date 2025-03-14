@@ -9,15 +9,24 @@ import LongShopCard from "~/components/long-shop-card";
 import NearbyShopCard from "~/components/nearby-shop-card";
 import ScrollToTopButton from "~/components/scroll-to-top-button";
 import SearchBar from "~/components/search-bar";
+import WelcomeUser from "~/components/welcome-user";
 import XAxisSlide from "~/components/x-axis-slide";
+import { DataCenter } from "~/provider/datacenter";
 import { getShopsInfo } from "~/repositories/shop.repository";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   try {
     const shops: Shop[] = await getShopsInfo(request);
-    return shops;
+    const name: string = DataCenter.getData("user_name_info") as string
+    return {
+        shops,
+        name
+    };
   } catch (e) {
-    return [];
+    return {
+        shops:[],
+        name:""
+    };
   }
 }
 
@@ -44,7 +53,7 @@ interface LocationData {
 }
 
 function HomePage() {
-  const shops = useLoaderData<Shop[]>();
+  const{shops, name} = useLoaderData<typeof loader>();
   const filteredShops = shops.filter(shop => shop.is_open);
 
   const [userLocation, setUserLocation] = useState<LocationData>({ success: false });
@@ -174,9 +183,10 @@ function HomePage() {
         lon={userLocation.lon}
       />
       <div className="px-5 pb-16">
-        <div className="flex justify-center w-full mb-5">
+        {/* <div className="flex justify-center w-full mb-5">
           <SearchBar />
-        </div>
+        </div> */}
+        <WelcomeUser userName={name}></WelcomeUser>
         <GapController gap={55}>
           <div className="w-full">
             <GapController gap={15}>
