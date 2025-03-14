@@ -41,22 +41,23 @@ function HomePage() {
   return (
     <div className="overflow-x-hidden mt-[-1px]">
       <CurrentLocationCard />
-      <div className="px-5 pb-16"> {/* Added padding at the bottom for better spacing */}
+      <div className="px-5 pb-16">
         <div className="flex justify-center w-full mb-5">
           <SearchBar />
         </div>
         <GapController gap={55}>
-          <div className="w-full"> {/* Added width to ensure proper layout */}
+          <div className="w-full">
             <GapController gap={15}>
               <h1 className="text-[20px] font-bold">ร้านค้าใกล้เคียงยอดนิยม</h1>
               {filteredShops.length === 0 ? (
                 <EmptyListIcon />
               ) : (
-                <div className="w-full overflow-x-visible"> {/* Added wrapper for overflow context */}
+                <div className="w-full overflow-x-visible">
                   <XAxisSlide>
                     {filteredShops.map((shop, index) => (
                       <NearbyShopCard
-                        key={shop.id} // Changed to use shop.id instead of index for better React performance
+                        key={shop.id}
+                        id={shop.id}
                         img_url={shop.image_uri || "public/starbuck.png"}
                         name={shop.name}
                         distance={"100"}

@@ -45,11 +45,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     return redirect("/shop");
   }
 
-  const BACKEND_URL = process.env.BACKEND_URL;
-  if (!BACKEND_URL) {
-    throw new Error("BACKEND_URL is not set in the environment variables.");
-  }
-
   const urlQueueInformation: string = `${process.env.NETWORK_URL}/api/queues/${queueId}/getQueueNumber`;
   const urlQueueStatus: string = `${process.env.NETWORK_URL}/api/queues/${queueId}/status`;
   const urlForCancelQueue: string = `${process.env.NETWORK_URL}/api/queues/${queueId}/cancel`;

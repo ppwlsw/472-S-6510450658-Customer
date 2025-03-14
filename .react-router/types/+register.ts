@@ -8,21 +8,23 @@ declare module "react-router" {
 
 type Params = {
   "/": {};
-  "/successful-register": {};
   "/merchant/store-management": {};
   "/merchant/dashboard": {};
   "/merchant/queue": {};
   "/queue/:queueId": {
     "queueId": string;
   };
+  "/shop/:shopID": {
+    "shopID": string;
+  };
   "/profile": {};
   "/scan": {};
-  "/shop": {};
   "/forget-password": {};
   "/reset-password": {};
   "/profile-edit": {};
   "/register": {};
   "/login": {};
+  "/copy": {};
   "/homepage": {};
   "/map": {};
 };

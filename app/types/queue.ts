@@ -23,3 +23,17 @@ export interface QueueReserved {
 export interface QueueReserveds {
   data: QueueReserved[]
 }
+
+export interface Queue {
+  id: number;
+  name: string;
+  description: string;
+  queue_image_url: string;
+  queue_counter: number;
+  is_available: boolean;
+  tag: string;
+}
+
+export interface Queues {
+  data: Queue[];
+}

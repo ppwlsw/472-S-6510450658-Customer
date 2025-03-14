@@ -1,105 +1,68 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Hourglass, MapPin, Phone } from "lucide-react";
+import {useState } from "react";
+import { Hourglass, Loader2, MapPin, Phone } from "lucide-react";
 import GapController from "~/components/gap-control";
 import QueueCard from "~/components/queue-card";
 import XAxisSlide from "~/components/x-axis-slide";
 import MenuCard from "~/components/menu-card";
-import { useNavigate } from "react-router";
+import { redirect, useFetcher, useLoaderData, type ActionFunctionArgs, type LoaderFunctionArgs } from "react-router";
+import { getShopInfoByID, sendBookQueueRequest } from "~/repositories/shop.repository";
+import type { Queue } from "~/types/queue";
 
-interface Queue {
-  id: number;
-  name: string;
-  description: string;
-  queue_image_url: string;
-  queue_counter: number;
-  is_available: boolean;
-  tag: string;
+interface ActionMessage{
+  success: boolean;
+  message: string;
 }
 
-interface Queues {
-  data: Queue[];
+export async function loader({request, params}:LoaderFunctionArgs) {
+  const shopID = params.shopID;
+
+  if(!shopID)throw redirect("/");
+
+  try{
+    const data:Queue[] = await getShopInfoByID(request, shopID);
+  
+    return data
+  }catch(e){
+    return []
+  }
+}
+
+export async function action({request}:ActionFunctionArgs) {
+  const formData = await request.formData();
+  const queue:Queue = JSON.parse(formData.get("queue") as string);
+
+  const success = await sendBookQueueRequest(request, queue);
+  return (success)? redirect(`/queue/${queue?.id}`) : {
+    success,
+    message: "จองคิวไม่สำเร็จ กรุณาลองอีกครั้ง"
+  }
 }
 
 function ShopPage() {
+  const fetcher = useFetcher<ActionMessage>();
+  const loaderData = useLoaderData<Queue[]>();
+  const queues = loaderData || [];
+
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [selectedQueue, setSelectedQueue] = useState<number | null>(null);
   const [queue, setQueue] = useState<Queue | null>(null);
-  const [queues, setQueues] = useState<Queues>({ data: [] });
-  const [loading, setLoading] = useState(false);
 
-  const navigate = useNavigate();
 
   const handleQueueClick = (index: number, queue: Queue) => {
     setSelectedQueue(index);
     setQueue(queue);
   };
 
-  const handleBookQueue = async () => {
-    setLoading(true);
-    if (queue) {
-      console.log(queue.id)
-      const queueUserGot = `${queue.tag}${queue.queue_counter + 1}`;
-      const urlForBookQueue = `http://localhost/api/queues/${queue.id}/join`;
-      const fetchData = async () => {
-        try {
-          const response = await fetch(urlForBookQueue, {
-            method: "POST",
-            headers: header,
-            body: JSON.stringify({
-              queue_user_got: queueUserGot,
-            }),
-          });
-          const data = await response.json();
-          if (!response.ok) throw new Error("Failed to fetch queues");
-          navigate(`/queue/${queue?.id}`);
-        } catch (error) {
-          console.error(error);
-          console.log(error)
-        } finally {
-          setLoading(false);
-        }
-      };
-      fetchData();
-    }
-  };
-
-
-  const urlForQueues = "http://localhost/api/queues?shop_id=4";
-  const header = {
-    "Content-Type": "application/json",
-    Authorization: "Bearer 2|lp0HtLVxMAzDUF5Dw96TIkYjiFiF0YY93P7SFjVm55902459",
-  };
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch(urlForQueues, {
-          method: "GET",
-          headers: header,
-        });
-        if (!response.ok) throw new Error("Failed to fetch queues");
-        console.log(response)
-        const data: Queues = await response.json();
-        setQueues(data);
-      } catch (error) {
-        console.error("Error fetching queues:", error);
-      }
-    };
-
-    fetchData();
-  }, []);
-
   return (
-    <div className="relative pb-52">
+    <div className="relative pb-52 overflow-x-hidden">
       <img
         src="/starbuck.png"
         alt="Shop"
         className="h-[28.8vh] w-full object-cover filter brightness-50"
       />
 
-      {/* card show information of shop show queue and location */}
       <div className="absolute top-[21vh] left-0 right-0 bg-white mx-3.5 px-4 py-2.5 rounded-xl shadow-lg">
         <div className="flex flex-row h-[11.8vh] items-center">
           <img
@@ -126,7 +89,6 @@ function ShopPage() {
         </div>
       </div>
 
-      {/* tab book and  information */}
       <div className="mx-[20px] mt-[9vh]">
         <GapController gap={20}>
           <div className="flex gap-2.5">
@@ -159,9 +121,9 @@ function ShopPage() {
           >
             {selectedIndex === 0 && (
               <GapController gap={20}>
-                <div className="py-2.5">
+                <div className="w-[97svw] py-2.5 overflow-x-scroll">
                   <XAxisSlide>
-                    {queues.data.map((queue, index) => (
+                    {queues.map((queue, index) => (
                       <QueueCard
                         key={queue.id}
                         isAvailable={queue.is_available}
@@ -172,7 +134,7 @@ function ShopPage() {
                     ))}
                   </XAxisSlide>
                 </div>
-                {/* ข้อมูลรายการที่เลือก */}
+
                 <div className="py-2.5">
                   <GapController gap={10}>
                     <h1 className="font-bold text-[24px]">
@@ -188,13 +150,22 @@ function ShopPage() {
           </div>
 
           {selectedIndex === 0 && queue && (
-            <button
-              className="bg-primary-dark rounded-xl w-full text-white py-[15px]"
-              onClick={handleBookQueue}
-              disabled={loading}
-            >
-              จองเลย
-            </button>
+            <fetcher.Form method="post" className="w-full">
+              <input type="hidden" name="queue" value={JSON.stringify(queue)} />
+              {fetcher.state === "submitting" ? (
+                <div className="flex justify-center py-4">
+                    <Loader2 className="animate-spin h-8 w-8 text-blue-600" />
+                </div>
+              ):
+              <button
+                className="bg-primary-dark rounded-xl w-full text-white py-[15px]"
+                id="bookQueue"
+                name="bookQueue"
+                type="submit"
+              >
+                จองเลย
+              </button>}
+            </fetcher.Form>
           )}
 
           <div
