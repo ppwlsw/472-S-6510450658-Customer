@@ -1,12 +1,24 @@
-import { Link, Outlet} from 'react-router';
+import { Link, Outlet, useLoaderData, type LoaderFunctionArgs} from 'react-router';
 import { AlignJustify } from 'lucide-react';
 import {useState } from 'react';
 import SidebarMenu from '~/components/sidebar-menu';
+import { DataCenter } from '~/provider/datacenter';
+
+export async function loader({request}:LoaderFunctionArgs) {
+    const payload = {
+        image: DataCenter.getData("user_image_info") as string
+    }
+
+    return payload
+}
 
 function Nav() {
+    const { image } = useLoaderData<typeof loader>()
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     
     const toggleMenu = () => setIsMenuOpen((prev) => !prev);
+
+    console.log(image)
     
     return (
         <div className='flex flex-col mb-0'>
@@ -20,14 +32,11 @@ function Nav() {
                 </div>
 
                 <div className='rounded-full bg-zinc-600 w-[47px] h-[47px] overflow-hidden'>
-                {/* <img
-                    src={user.data.image_url || defaultImage}
+                <img
+                    src={image}
                     alt="User profile"
                     className="object-cover w-full h-full"
-                    onError={(e) => {
-                    e.currentTarget.src = defaultImage;
-                    }}
-                /> */}
+                />
                 </div>
             </nav>
 
