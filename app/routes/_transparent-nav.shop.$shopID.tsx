@@ -56,7 +56,7 @@ function ShopPage() {
   };
 
   return (
-    <div className="relative pb-52 overflow-x-hidden">
+    <div className="relative pb-52 overflow-x-hidden mt-[-1.5px]">
       <img
         src="/starbuck.png"
         alt="Shop"

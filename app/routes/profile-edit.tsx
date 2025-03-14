@@ -154,7 +154,7 @@ function ProfileEditPage(){
 
     const isSubmitting = nav.state === 'submitting'
     return (
-        <div className="h-screen">
+        <div className="h-screen bg-primary-white-smoke">
           <nav className="bg-primary-dark h-[19.6vh] flex justify-center">
             <h1 className="font-bold text-lg text-white mt-4">Edit Profile</h1>
             <Link to={"/profile"}>

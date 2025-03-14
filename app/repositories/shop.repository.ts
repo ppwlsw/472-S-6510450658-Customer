@@ -1,6 +1,17 @@
 import type { Queue, Queues } from "~/types/queue";
 import useAxiosInstance from "~/utils/axiosInstance";
 
+export async function getShopsInfo(request: Request) {
+    try{
+        const axios = useAxiosInstance(request, {raw:true})
+        const response = await axios.get<Shops>("/shops")
+
+        return response.data.data
+    }catch(e){
+        return []
+    }
+}
+
 export async function getShopInfoByID(request: Request, shop_id: string) {
     const axios = useAxiosInstance(request, { raw: true })
     const response = await axios.get<Queues>("/queues?shop_id=" + shop_id)
