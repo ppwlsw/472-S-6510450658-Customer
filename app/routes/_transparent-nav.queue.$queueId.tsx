@@ -42,7 +42,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   const queueId = params.queueId;
   if (!queueId) {
-    return redirect("/shop");
+    return redirect("/homepage");
   }
 
   const urlQueueInformation: string = `${process.env.NETWORK_URL}/api/queues/${queueId}/getQueueNumber`;
@@ -54,8 +54,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     const infoRes: QueueInformation = await fetchQueueInformation(queueId, request)
     console.log(infoRes)
 
-    if (!infoRes) {
-      return redirect("/shop")
+    if (infoRes.data == null) {
+      return redirect("/homepage")
     }
     const statusRes = await fetchQueueStatus(queueId, infoRes.data.queue_number, request)
 
