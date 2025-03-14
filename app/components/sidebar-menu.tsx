@@ -124,7 +124,7 @@ function SidebarMenu({ onClose }: SidebarMenuProps) {
             currentPath={currentPath}
           />
         </div>
-
+{/* 
         <div className="h-full flex flex-col-reverse">
           <SidebarItem
             icon={Store}
@@ -136,7 +136,7 @@ function SidebarMenu({ onClose }: SidebarMenuProps) {
             path="/#"
             currentPath={currentPath}
           />
-        </div>
+        </div> */}
       </div>
     </div>
   );

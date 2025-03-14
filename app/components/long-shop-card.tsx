@@ -6,13 +6,14 @@ interface LongShopCardProps {
   name: string;
   distance: string;
   total_queue: string;
+  shop_id: number
 }
 
-function LongShopCard({ img_url, name, distance, total_queue }: LongShopCardProps) {
+function LongShopCard({ img_url, name, distance, total_queue,shop_id }: LongShopCardProps) {
     const navigate = useNavigate();
     
     const handleClick = () => {
-        navigate("/shop");
+        navigate(`/shop/${shop_id}`);
     };
 
   return (

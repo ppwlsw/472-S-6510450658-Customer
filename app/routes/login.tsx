@@ -14,6 +14,8 @@ import {
 } from "~/services/auth";
 import { authCookie, type AuthCookieProps } from "~/services/cookie";
 import { motion } from "framer-motion";
+import { fetchUserInfo } from "~/repositories/user.repository";
+import { DataCenter } from "~/provider/datacenter";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
@@ -77,6 +79,10 @@ export async function action({ request }: ActionFunctionArgs) {
       user_id: user_id,
       role: role,
     } as AuthCookieProps);
+
+    const user = await fetchUserInfo(user_id, request)
+
+    DataCenter.addData("user_image_info", user.data.image_url as string)
 
     return redirect("/homepage", {
       headers: {

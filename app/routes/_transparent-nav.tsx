@@ -1,9 +1,19 @@
 import { AlignJustify } from "lucide-react";
 import { useState } from "react";
-import { Link, Outlet } from "react-router";
+import { Link, Outlet, useLoaderData, type LoaderFunctionArgs } from "react-router";
 import SidebarMenu from "~/components/sidebar-menu";
+import { DataCenter } from "~/provider/datacenter";
+
+export async function loader({request}:LoaderFunctionArgs) {
+    const payload = {
+        image: DataCenter.getData("user_image_info") as string
+    }
+
+    return payload
+}
 
 function TransparentNav() {
+    const { image } = useLoaderData<typeof loader>()
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     const toggleMenu = () => setIsMenuOpen((prev) => !prev);
@@ -22,7 +32,13 @@ function TransparentNav() {
                     <Link to="/homepage" prefetch="intent">SeeQ</Link>
                 </div>
 
-                <div className="rounded-full bg-zinc-600 w-[47px] h-[47px]"></div>
+                <div className='rounded-full bg-zinc-600 w-[47px] h-[47px] overflow-hidden'>
+                <img
+                    src={image}
+                    alt="User profile"
+                    className="object-cover w-full h-full"
+                />
+                </div>
             </nav>
 
             {isMenuOpen && <SidebarMenu onClose={toggleMenu} />}
