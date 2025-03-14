@@ -15,6 +15,8 @@ interface LoaderData {
   url: {
     urlQueueInformation: string;
     urlQueueStatus: string;
+    urlForCancelQueue: string;
+    urlSubscribe: string;
   };
 }
 
@@ -48,8 +50,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     throw new Error("BACKEND_URL is not set in the environment variables.");
   }
 
-  const urlQueueInformation: string = `http://localhost/api/queues/${queueId}/getQueueNumber`;
-  const urlQueueStatus: string = `http://localhost/api/queues/${queueId}/status`;
+  const urlQueueInformation: string = `${process.env.NETWORK_URL}/api/queues/${queueId}/getQueueNumber`;
+  const urlQueueStatus: string = `${process.env.NETWORK_URL}/api/queues/${queueId}/status`;
+  const urlForCancelQueue: string = `${process.env.NETWORK_URL}/api/queues/${queueId}/cancel`;
+  const urlSubscribe: string = `${process.env.NETWORK_URL}/api/queues/${queueId}/subscribe`;
 
   try {
     const infoRes: QueueInformation = await fetchQueueInformation(queueId, request)
@@ -68,6 +72,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       url: {
         urlQueueInformation,
         urlQueueStatus,
+        urlForCancelQueue,
+        urlSubscribe,
       },
     };
   } catch (e) {
@@ -89,7 +95,7 @@ export default function QueuePage() {
   };
 
   const handleCancelQueue = async () => {
-    const urlForCancelQueue = `http://localhost:80/api/queues/${queueId}/cancel`;
+    const urlForCancelQueue = url.urlForCancelQueue;
     const fetchData = async () => {
       try {
         const response = await fetch(urlForCancelQueue, {
@@ -123,7 +129,7 @@ export default function QueuePage() {
     }
 
     const eventSource = new EventSource(
-      `http://localhost:3001/api/queues/${queueId}/subscribe`
+      url.urlSubscribe
     );
     eventSourceRef.current = eventSource;
 
