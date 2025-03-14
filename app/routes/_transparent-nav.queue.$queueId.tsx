@@ -52,7 +52,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   try {
     const infoRes: QueueInformation = await fetchQueueInformation(queueId, request)
-    console.log(infoRes)
 
     if (infoRes.data == null) {
       return redirect("/homepage")
@@ -132,7 +131,6 @@ export default function QueuePage() {
       try {
         const data = JSON.parse(event.data);
         const queue = user.userId + "_" + queueUserGot;
-        console.log(queue)
 
         if (data.nextQueue === queue) {
           setIsCustomerTurn(true);
@@ -145,14 +143,15 @@ export default function QueuePage() {
         };
 
         if (data.event === "next" || data.event === "cancel") {
-          console.log(data);
           fetch(url.urlQueueStatus, {
             method: "POST",
             headers: headers,
             body: JSON.stringify({ queue_user_got: queueUserGot }),
           })
             .then((res) => res.json())
-            .then((statusData) => setStatus(statusData))
+            .then((statusData) => {
+              setStatus(statusData)
+            })
             .catch((error) =>
               console.error("Error updating queue status:", error)
             );
@@ -191,8 +190,9 @@ export default function QueuePage() {
     return "border-gray-400";
   };
 
+
   return (
-    <div className={`${getBackgroundColor(status?.position)}`}>
+    <div className={`${getBackgroundColor(dynamicStatus?.position)}`}>
       <div className="flex flex-col h-full pt-16">
         <div className="mt-10 text-white ml-4 mb-36">
           <h1 className="text-2xl">{info?.data.shop_name}</h1>
@@ -203,7 +203,7 @@ export default function QueuePage() {
         <div className="z-10 -mb-36 flex flex-row justify-center">
           <div
             className={`shadow-md w-64 h-64 bg-white rounded-full border-[9px] ${getBorderColor(
-              status?.position
+              dynamicStatus?.position
             )} flex justify-center items-center`}
           >
             <h1 className="text-5xl font-bold text-[#242F40]">
@@ -235,7 +235,7 @@ export default function QueuePage() {
               <div className="text-green-500">Your Queue Now</div>
             ) : (
               <button
-                className={`${getBackgroundColor(status?.position)} rounded-3xl text-white py-[15px] w-10/12`}
+                className={`${getBackgroundColor(dynamicStatus?.position)} rounded-3xl text-white py-[15px] w-10/12`}
                 onClick={handleCancelQueue}
               >
                 Cancel Queue
