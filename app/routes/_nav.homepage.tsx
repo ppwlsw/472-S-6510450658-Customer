@@ -51,71 +51,119 @@ function HomePage() {
   const [isLoadingLocation, setIsLoadingLocation] = useState(true);
   const [distances, setDistances] = useState<{[id: string]: string}>({});
 
-  useEffect(() => {
-    const getUserLocation = () => {
-      if ("geolocation" in navigator) {
-        navigator.geolocation.getCurrentPosition(
-          async (position) => {
-            try {
-              const response = await axios.get(
-                `https://nominatim.openstreetmap.org/reverse?format=json&lat=${position.coords.latitude}&lon=${position.coords.longitude}`
-              );
+//   useEffect(() => {
+//     const getUserLocation = () => {
+//       if ("geolocation" in navigator) {
+//         navigator.geolocation.getCurrentPosition(
+//           async (position) => {
+//             try {
+//               const response = await axios.get(
+//                 `https://nominatim.openstreetmap.org/reverse?format=json&lat=${position.coords.latitude}&lon=${position.coords.longitude}`
+//               );
               
-              const locationData = {
-                success: true,
-                lat: String(position.coords.latitude),
-                lon: String(position.coords.longitude),
-                name: response.data.name,
-                display_name: response.data.display_name,
-                address: response.data.address
-              };
+//               const locationData = {
+//                 success: true,
+//                 lat: String(position.coords.latitude),
+//                 lon: String(position.coords.longitude),
+//                 name: response.data.name,
+//                 display_name: response.data.display_name,
+//                 address: response.data.address
+//               };
               
-              setUserLocation(locationData);
-              if (filteredShops.length > 0) {
-                const newDistances: {[id: string]: string} = {};
-                const shopsWithDistances = filteredShops.map(shop => {
-                  const distance = calculateDistance(
-                    position.coords.latitude,
-                    position.coords.longitude,
-                    shop.latitude,
-                    shop.longitude
-                  );
-                  newDistances[shop.id] = `${distance.toFixed(2)} km`;
-                  return { ...shop, distance };
-                });
+//               setUserLocation(locationData);
+//               if (filteredShops.length > 0) {
+//                 const newDistances: {[id: string]: string} = {};
+//                 const shopsWithDistances = filteredShops.map(shop => {
+//                   const distance = calculateDistance(
+//                     position.coords.latitude,
+//                     position.coords.longitude,
+//                     shop.latitude,
+//                     shop.longitude
+//                   );
+//                   newDistances[shop.id] = `${distance.toFixed(2)} km`;
+//                   return { ...shop, distance };
+//                 });
 
-                shopsWithDistances.sort((a, b) => a.distance - b.distance);
+//                 shopsWithDistances.sort((a, b) => a.distance - b.distance);
 
-                setDistances(newDistances);
-              }
-            } catch (error) {
-              setUserLocation({
-                success: false,
-                error: "ไม่สามารถดึงข้อมูลตำแหน่งได้"
-              });
-            } finally {
-              setIsLoadingLocation(false);
-            }
-          },
-          (error) => {
-            setUserLocation({
-              success: false,
-              error: "ไม่สามารถดึงข้อมูลตำแหน่งของผู้ใช้ได้"
-            });
-            setIsLoadingLocation(false);
-          }
-        );
-      } else {
-        setUserLocation({
-          success: false,
-          error: "browser ของคุณไม่รองรับการดึงข้อมูลตำแหน่ง กรุณาเปลี่ยน browser"
-        });
-        setIsLoadingLocation(false);
-      }
-    };
+//                 setDistances(newDistances);
+//               }
+//             } catch (error) {
+//               setUserLocation({
+//                 success: false,
+//                 error: "ไม่สามารถดึงข้อมูลตำแหน่งได้"
+//               });
+//             } finally {
+//               setIsLoadingLocation(false);
+//             }
+//           },
+//           (error) => {
+//             setUserLocation({
+//               success: false,
+//               error: "ไม่สามารถดึงข้อมูลตำแหน่งของผู้ใช้ได้"
+//             });
+//             setIsLoadingLocation(false);
+//           }
+//         );
+//       } else {
+//         setUserLocation({
+//           success: false,
+//           error: "browser ของคุณไม่รองรับการดึงข้อมูลตำแหน่ง กรุณาเปลี่ยน browser"
+//         });
+//         setIsLoadingLocation(false);
+//       }
+//     };
     
-    getUserLocation();
-  }, []);
+//     getUserLocation();
+//   }, []);
+    useEffect(()=>{
+        async function a(){
+            try {
+                const latitude = 13.8479786
+                const longitude = 100.5697013
+                const response = await axios.get(
+                  `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
+                );
+                
+                const locationData = {
+                  success: true,
+                  lat: String(latitude),
+                  lon: String(longitude),
+                  name: response.data.name,
+                  display_name: response.data.display_name,
+                  address: response.data.address
+                };
+                
+                setUserLocation(locationData);
+                if (filteredShops.length > 0) {
+                  const newDistances: {[id: string]: string} = {};
+                  const shopsWithDistances = filteredShops.map(shop => {
+                    const distance = calculateDistance(
+                      latitude,
+                      longitude,
+                      shop.latitude,
+                      shop.longitude
+                    );
+                    newDistances[shop.id] = `${distance.toFixed(2)} km`;
+                    return { ...shop, distance };
+                  });
+  
+                  shopsWithDistances.sort((a, b) => a.distance - b.distance);
+  
+                  setDistances(newDistances);
+                }
+              } catch (error) {
+                setUserLocation({
+                  success: false,
+                  error: "ไม่สามารถดึงข้อมูลตำแหน่งได้"
+                });
+              } finally {
+                setIsLoadingLocation(false);
+              }
+        }
+
+        a();
+    },[])
 
   return (
     <div className="overflow-x-hidden mt-[-1px]">
