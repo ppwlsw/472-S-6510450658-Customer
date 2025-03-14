@@ -2,7 +2,7 @@ services:
   customer.seeq.frontend:
     image: oven/bun:1.2.3
     ports:
-      - "3101:5173"
+      - "3002:5173"
     volumes:
       - type: bind
         source: .
@@ -29,4 +29,4 @@ services:
 networks:
   newton:
     external: true
-    name: seeq_sail
+    name: seeq-backend_sail
