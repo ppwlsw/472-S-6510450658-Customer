@@ -15,6 +15,8 @@ interface LoaderData {
   url: {
     urlQueueInformation: string;
     urlQueueStatus: string;
+    urlForCancelQueue: string;
+    urlSubscribe: string;
   };
 }
 
@@ -40,18 +42,19 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   const queueId = params.queueId;
   if (!queueId) {
-    return redirect("/shop");
+    return redirect("/homepage");
   }
 
-  const urlQueueInformation: string = `http://localhost/api/queues/${queueId}/getQueueNumber`;
-  const urlQueueStatus: string = `http://localhost/api/queues/${queueId}/status`;
+  const urlQueueInformation: string = `${process.env.NETWORK_URL}/api/queues/${queueId}/getQueueNumber`;
+  const urlQueueStatus: string = `${process.env.NETWORK_URL}/api/queues/${queueId}/status`;
+  const urlForCancelQueue: string = `${process.env.NETWORK_URL}/api/queues/${queueId}/cancel`;
+  const urlSubscribe: string = `${process.env.NETWORK_URL}:3001/api/queues/${queueId}/subscribe`;
 
   try {
     const infoRes: QueueInformation = await fetchQueueInformation(queueId, request)
-    console.log(infoRes)
 
-    if (!infoRes) {
-      return redirect("/shop")
+    if (infoRes.data == null) {
+      return redirect("/homepage")
     }
     const statusRes = await fetchQueueStatus(queueId, infoRes.data.queue_number, request)
 
@@ -63,6 +66,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       url: {
         urlQueueInformation,
         urlQueueStatus,
+        urlForCancelQueue,
+        urlSubscribe,
       },
     };
   } catch (e) {
@@ -84,7 +89,7 @@ export default function QueuePage() {
   };
 
   const handleCancelQueue = async () => {
-    const urlForCancelQueue = `http://localhost:80/api/queues/${queueId}/cancel`;
+    const urlForCancelQueue = url.urlForCancelQueue;
     const fetchData = async () => {
       try {
         const response = await fetch(urlForCancelQueue, {
@@ -118,7 +123,7 @@ export default function QueuePage() {
     }
 
     const eventSource = new EventSource(
-      `http://localhost:3001/api/queues/${queueId}/subscribe`
+      url.urlSubscribe
     );
     eventSourceRef.current = eventSource;
 
@@ -126,7 +131,6 @@ export default function QueuePage() {
       try {
         const data = JSON.parse(event.data);
         const queue = user.userId + "_" + queueUserGot;
-        console.log(queue)
 
         if (data.nextQueue === queue) {
           setIsCustomerTurn(true);
@@ -139,14 +143,15 @@ export default function QueuePage() {
         };
 
         if (data.event === "next" || data.event === "cancel") {
-          console.log(data);
           fetch(url.urlQueueStatus, {
             method: "POST",
             headers: headers,
             body: JSON.stringify({ queue_user_got: queueUserGot }),
           })
             .then((res) => res.json())
-            .then((statusData) => setStatus(statusData))
+            .then((statusData) => {
+              setStatus(statusData)
+            })
             .catch((error) =>
               console.error("Error updating queue status:", error)
             );
@@ -185,8 +190,9 @@ export default function QueuePage() {
     return "border-gray-400";
   };
 
+
   return (
-    <div className={`${getBackgroundColor(status?.position)}`}>
+    <div className={`${getBackgroundColor(dynamicStatus?.position)}`}>
       <div className="flex flex-col h-full pt-16">
         <div className="mt-10 text-white ml-4 mb-36">
           <h1 className="text-2xl">{info?.data.shop_name}</h1>
@@ -197,7 +203,7 @@ export default function QueuePage() {
         <div className="z-10 -mb-36 flex flex-row justify-center">
           <div
             className={`shadow-md w-64 h-64 bg-white rounded-full border-[9px] ${getBorderColor(
-              status?.position
+              dynamicStatus?.position
             )} flex justify-center items-center`}
           >
             <h1 className="text-5xl font-bold text-[#242F40]">
@@ -229,7 +235,7 @@ export default function QueuePage() {
               <div className="text-green-500">Your Queue Now</div>
             ) : (
               <button
-                className={`${getBackgroundColor(status?.position)} rounded-3xl text-white py-[15px] w-10/12`}
+                className={`${getBackgroundColor(dynamicStatus?.position)} rounded-3xl text-white py-[15px] w-10/12`}
                 onClick={handleCancelQueue}
               >
                 Cancel Queue

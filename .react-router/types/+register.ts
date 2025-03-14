@@ -24,6 +24,7 @@ type Params = {
   "/profile-edit": {};
   "/register": {};
   "/login": {};
+  "/test": {};
   "/copy": {};
   "/homepage": {};
   "/map": {};

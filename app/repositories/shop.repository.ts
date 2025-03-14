@@ -13,19 +13,19 @@ export async function getShopsInfo(request: Request) {
 }
 
 export async function getShopInfoByID(request: Request, shop_id: string) {
-    const axios = useAxiosInstance(request, {raw:true})
-    const response = await axios.get<Queues>("/queues?shop_id="+shop_id)
+    const axios = useAxiosInstance(request, { raw: true })
+    const response = await axios.get<Queues>("/queues?shop_id=" + shop_id)
 
     return response.data.data
 }
 
 export async function sendBookQueueRequest(request: Request, queue: Queue) {
-    try{
+    try {
         const axios = useAxiosInstance(request);
-        await axios.post(`/queues/${queue.id}/join`,{queue_user_got: `${queue.tag}${queue.queue_counter + 1}`});
+        await axios.post(`/queues/${queue.id}/join`, { queue_user_got: `${queue.tag}${queue.queue_counter + 1}` });
 
         return true
-    }catch(e){
+    } catch (e) {
         return false
     }
 }
