@@ -8,6 +8,7 @@ declare module "react-router" {
 
 type Params = {
   "/": {};
+  "/forget-password": {};
   "/merchant/store-management": {};
   "/merchant/dashboard": {};
   "/merchant/queue": {};
@@ -19,7 +20,6 @@ type Params = {
   };
   "/profile": {};
   "/scan": {};
-  "/forget-password": {};
   "/reset-password": {};
   "/profile-edit": {};
   "/register": {};

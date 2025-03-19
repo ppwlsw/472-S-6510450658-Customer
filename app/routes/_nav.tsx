@@ -3,12 +3,14 @@ import { AlignJustify } from 'lucide-react';
 import {useState } from 'react';
 import SidebarMenu from '~/components/sidebar-menu';
 import { DataCenter } from '~/provider/datacenter';
+import { prefetchImage } from '~/utils/image-proxy';
 
 export async function loader({request}:LoaderFunctionArgs) {
+    const image_url = DataCenter.getData("user_image_info") as string
+    await prefetchImage(image_url);
     const payload = {
-        image: DataCenter.getData("user_image_info") as string
+        image: image_url
     }
-
     return payload
 }
 
@@ -18,8 +20,6 @@ function Nav() {
     
     const toggleMenu = () => setIsMenuOpen((prev) => !prev);
 
-    console.log(image)
-    
     return (
         <div className='flex flex-col mb-0'>
             <nav className='flex flex-row bg-primary-dark justify-between items-center px-2 h-[10.4vh]'>
