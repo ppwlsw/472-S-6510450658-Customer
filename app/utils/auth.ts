@@ -1,9 +1,9 @@
 import { redirect } from "react-router";
 
-const APP_URL: string = process.env.APP_URL as string;
+const API_BASE_URL: string = process.env.API_BASE_URL as string;
 
 export async function requestGoogleLogin() {
-  const response = await fetch(`${APP_URL}/auth/google`, {
+  const response = await fetch(`${API_BASE_URL}/auth/google`, {
     method: "GET",
   });
   const json = await response.json();
@@ -30,7 +30,7 @@ export async function requestLogin(
   formData.set("email", loginProps.email);
   formData.set("password", loginProps.password);
 
-  const response = await fetch(`${APP_URL}/auth/login`, {
+  const response = await fetch(`${API_BASE_URL}/auth/login`, {
     method: "POST",
     body: formData,
   });
@@ -66,7 +66,7 @@ export async function requestRegister(
   formData.set("password", registerProps.password);
   formData.set("phone", registerProps.phone);
 
-  const response = await fetch(`${APP_URL}/auth/register`, {
+  const response = await fetch(`${API_BASE_URL}/auth/register`, {
     method: "POST",
     body: formData,
   });
@@ -89,7 +89,7 @@ export async function requestDecryptToken(
 ): Promise<ResponseMessageProps> {
   const formData = new FormData();
   formData.set("encrypted", token);
-  const response = await fetch(`${APP_URL}/auth/decrypt`, {
+  const response = await fetch(`${API_BASE_URL}/auth/decrypt`, {
     method: "POST",
     body: formData,
   });

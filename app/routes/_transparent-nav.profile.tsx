@@ -1,5 +1,5 @@
 import { Link, useLoaderData, type LoaderFunctionArgs } from "react-router";
-import { getAuthCookie, type AuthCookieProps } from "~/services/cookie";
+import { getAuthCookie, type AuthCookieProps } from "~/utils/cookie";
 import { fetchQueueReservedInfo } from "~/repositories/queue.repository";
 import { fetchUserInfo } from "~/repositories/user.repository";
 import type { User } from "~/types/user";

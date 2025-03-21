@@ -1,12 +1,12 @@
 import axios, { type AxiosInstance } from "axios";
 import axiosRetry from "axios-retry";
-import { getAuthCookie } from "~/services/cookie";
+import { getAuthCookie, type AuthCookieProps } from "~/utils/cookie";
 
 function useAxiosInstance(
     request: Request,
-    options: { raw?: boolean; without_token?: boolean } = {}
+    options: { raw?: boolean; without_token?: boolean; custom_token?:string } = {}
 ): AxiosInstance {
-    const { raw = false, without_token = false } = options;
+    const { raw = false, without_token = false, custom_token="" } = options;
 
     const axiosInstance: AxiosInstance = axios.create({
         baseURL: process.env.API_BASE_URL,
@@ -21,10 +21,16 @@ function useAxiosInstance(
     axiosInstance.interceptors.request.use(
         async (config) => {
             if (!without_token) {
-                const cookie: any = await getAuthCookie({ request });
-                if (cookie.token) {
+                let token = custom_token;
+    
+                if (!token) {
+                    const cookie: AuthCookieProps = await getAuthCookie({ request });
+                    token = cookie?.token;
+                }
+    
+                if (token) {
                     try {
-                        config.headers.Authorization = `Bearer ${cookie.token}`;
+                        config.headers.Authorization = `Bearer ${token}`;
                     } catch (e) {
                         throw e;
                     }
