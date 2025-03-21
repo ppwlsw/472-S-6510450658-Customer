@@ -28,7 +28,6 @@ type Params = {
   "/register": {};
   "/login": {};
   "/test": {};
-  "/copy": {};
   "/homepage": {};
   "/map": {};
 };
