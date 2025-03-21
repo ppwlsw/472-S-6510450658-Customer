@@ -28,9 +28,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
       .plain_text as string;
     const cookie = await authCookie.serialize(decrypted);
 
-    const user = await defaultFetcherUserInfo(parseInt(user_id), decrypted);
-    DataCenter.addData("user_image_info", user.data.image_url as string);
-    DataCenter.addData("user_name_info", user.data.name as string);
+    const user = await defaultFetcherUserInfo(request, parseInt(user_id), decrypted);
+    
+    DataCenter.addData("user_image_info", user.image_url as string);
+    DataCenter.addData("user_name_info", user.name as string);
 
     return redirect("/homepage", {
       headers: {
@@ -89,10 +90,10 @@ export async function action({ request }: ActionFunctionArgs) {
       role: role,
     } as AuthCookieProps);
 
-    const user = await defaultFetcherUserInfo(user_id, decrypted);
+    const user = await defaultFetcherUserInfo(request, user_id, decrypted);
 
-    DataCenter.addData("user_image_info", user.data.image_url as string);
-    DataCenter.addData("user_name_info", user.data.name as string);
+    DataCenter.addData("user_image_info", user.image_url as string);
+    DataCenter.addData("user_name_info", user.name as string);
 
     console.log("login")
     return redirect("/homepage", {

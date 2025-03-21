@@ -1,4 +1,4 @@
-import { Link, Outlet, useLoaderData, type LoaderFunctionArgs} from 'react-router';
+import { Link, Outlet, redirect, useLoaderData, type LoaderFunctionArgs} from 'react-router';
 import { AlignJustify } from 'lucide-react';
 import {useState } from 'react';
 import SidebarMenu from '~/components/sidebar-menu';
@@ -6,8 +6,13 @@ import { DataCenter } from '~/provider/datacenter';
 import { prefetchImage } from '~/utils/image-proxy';
 
 export async function loader({request}:LoaderFunctionArgs) {
-    const image_url = DataCenter.getData("user_image_info") as string
-    await prefetchImage(image_url);
+    const image_url = DataCenter.getData("user_image_info") as string;
+
+    // if (!image_url) {
+    //     return redirect("/login");
+    // }
+
+    // await prefetchImage(image_url);
     const payload = {
         image: image_url
     }
