@@ -27,8 +27,6 @@ function useAxiosInstance(
                     const { getCookie } = useAuth;
                     const cookie =  await getCookie({ request });
                     token = cookie?.token;
-                    console.log("get Cookie");
-                    console.log(cookie);
                 }
     
                 if (token) {
