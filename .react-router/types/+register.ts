@@ -11,6 +11,9 @@ type Params = {
   "/merchant/store-management": {};
   "/merchant/dashboard": {};
   "/merchant/queue": {};
+  "/queue-complete/:queueId": {
+    "queueId": string;
+  };
   "/queue/:queueId": {
     "queueId": string;
   };
