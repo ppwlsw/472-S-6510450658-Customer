@@ -13,7 +13,7 @@ import { prefetchImage } from "~/utils/image-proxy";
 import { useAuth } from "~/utils/auth";
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const  { validate, getCookie } = useAuth;
+  const  { validate } = useAuth;
   await validate({ request });
   const image_url = DataCenter.getData("user_image_info") as string;
   const image = await prefetchImage(image_url);
