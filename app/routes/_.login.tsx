@@ -33,7 +33,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
   if (token) {
     const decrypted = (await requestDecryptToken(token)).data
       .plain_text as string;
-    const cookie = await authCookie.serialize(decrypted);
+    const cookie = await authCookie.serialize({
+      token: decrypted,
+      user_id: user_id,
+    });
 
     const user = await defaultFetcherUserInfo(request, parseInt(user_id), decrypted);
     
