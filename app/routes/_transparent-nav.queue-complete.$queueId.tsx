@@ -1,7 +1,7 @@
 import { redirect, useLoaderData, type LoaderFunctionArgs } from "react-router";
 import { fetchQueueCompleteInformation } from "~/repositories/queue.repository";
-import { getAuthCookie, type AuthCookieProps } from "~/services/cookie";
 import type { QueueInformation } from "~/types/queue";
+import { getAuthCookie, type AuthCookieProps } from "~/utils/cookie";
 
 interface LoaderData {
   queueId: string;
