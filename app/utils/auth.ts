@@ -1,6 +1,7 @@
-import { redirect } from "react-router";
+import { createCookie, redirect, type Cookie } from "react-router";
 
 const API_BASE_URL: string = process.env.API_BASE_URL as string;
+const ENV: string = process.env.ENV as string;
 
 export async function requestGoogleLogin() {
   const response = await fetch(`${API_BASE_URL}/auth/google`, {
@@ -99,4 +100,53 @@ export async function requestDecryptToken(
     status: response.status,
     error: response.status === 500 ? "เกิดข้อผิดพลาด" : "",
   };
+}
+
+
+export const authCookie: Cookie = createCookie("auth_customer", {
+  path: "/",
+  sameSite: "lax",
+  maxAge: 60 * 60 * 24,
+
+  httpOnly: ENV !== "PRODUCTION",
+  secure: ENV === "PRODUCTION",
+  secrets: [API_BASE_URL]
+});
+
+interface AuthCookieProps {
+  token: string;
+  user_id: number;
+  role: string;
+}
+
+async function getAuthCookie({ request }: { request: Request }): Promise<AuthCookieProps> {
+  const cookie: AuthCookieProps = await authCookie.parse(request.headers.get("Cookie"));
+  return cookie;
+}
+
+async function validate({ request }: { request: Request}): Promise<boolean> {
+  const isAuthCookieValid = await validateAuthCookie({ request });
+  return isAuthCookieValid;
+}
+
+async function validateAuthCookie({ request }: { request: Request}): Promise<boolean> {
+  const cookie: AuthCookieProps = await authCookie.parse(request.headers.get("Cookie"));
+  if (!cookie) {
+    throw redirect("/login")
+  }
+  return true
+}
+
+
+
+interface useAuthProps {
+  getCookie: ({ request }: { request: Request }) => Promise<AuthCookieProps>,
+  validate: ({ request }: { request: Request }) => Promise<boolean>,
+}
+
+
+
+export const useAuth: useAuthProps = {
+  getCookie: getAuthCookie,
+  validate: validate
 }

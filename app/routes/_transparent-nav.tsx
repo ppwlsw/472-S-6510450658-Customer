@@ -3,8 +3,12 @@ import { useState } from "react";
 import { Link, Outlet, useLoaderData, type LoaderFunctionArgs } from "react-router";
 import SidebarMenu from "~/components/sidebar-menu";
 import { DataCenter } from "~/provider/datacenter";
+import { useAuth } from "~/utils/auth";
 
 export async function loader({request}:LoaderFunctionArgs) {
+    const  { validate } = useAuth;
+    await validate({ request });
+
     const payload = {
         image: DataCenter.getData("user_image_info") as string
     }

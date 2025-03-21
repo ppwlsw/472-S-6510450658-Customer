@@ -1,15 +1,23 @@
 import { useEffect, useRef, useState } from "react";
-import { redirect, useLoaderData, useNavigate, type LoaderFunctionArgs } from "react-router";
-import { fetchQueueInformation, fetchQueueStatus } from "~/repositories/queue.repository";
-import { getAuthCookie, type AuthCookieProps } from "~/utils/cookie";
+import {
+  redirect,
+  useLoaderData,
+  useNavigate,
+  type LoaderFunctionArgs,
+} from "react-router";
+import {
+  fetchQueueInformation,
+  fetchQueueStatus,
+} from "~/repositories/queue.repository";
 import type { QueueInformation, QueueStatus } from "~/types/queue";
+import { useAuth } from "~/utils/auth";
 
 interface LoaderData {
   queueId: string;
   user: {
-    userId: string
-    token: string
-  }
+    userId: string;
+    token: string;
+  };
   info: QueueInformation;
   status: QueueStatus;
   url: {
@@ -21,24 +29,14 @@ interface LoaderData {
 }
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
-  var user
-  try {
-    const cookie: AuthCookieProps = await getAuthCookie({ request });
-    if (!cookie) {
-      return redirect("/login")
-    }
+  var user;
+  const  { getCookie } = useAuth;
+  const cookie = await getCookie({ request });
 
-    user = {
-      userId: cookie.user_id,
-      token: cookie.token
-    }
-  } catch (error) {
-    throw new Error("Cookie not found")
-  }
-
-  if (!user) {
-    throw new Error("User id not found")
-  }
+  user = {
+    userId: cookie.user_id,
+    token: cookie.token,
+  };
 
   const queueId = params.queueId;
   if (!queueId) {
@@ -51,12 +49,19 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const urlSubscribe: string = `${process.env.NETWORK_URL}:3001/api/queues/${queueId}/subscribe`;
 
   try {
-    const infoRes: QueueInformation = await fetchQueueInformation(queueId, request)
+    const infoRes: QueueInformation = await fetchQueueInformation(
+      queueId,
+      request
+    );
 
     if (infoRes.data == null) {
-      return redirect("/homepage")
+      return redirect("/homepage");
     }
-    const statusRes = await fetchQueueStatus(queueId, infoRes.data.queue_number, request)
+    const statusRes = await fetchQueueStatus(
+      queueId,
+      infoRes.data.queue_number,
+      request
+    );
 
     return {
       queueId: queueId,
@@ -71,7 +76,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       },
     };
   } catch (e) {
-    return { error: "Error ", e }
+    return { error: "Error ", e };
   }
 }
 export default function QueuePage() {
@@ -122,9 +127,7 @@ export default function QueuePage() {
       eventSourceRef.current.close();
     }
 
-    const eventSource = new EventSource(
-      url.urlSubscribe
-    );
+    const eventSource = new EventSource(url.urlSubscribe);
     eventSourceRef.current = eventSource;
 
     eventSource.onmessage = (event) => {
@@ -150,7 +153,7 @@ export default function QueuePage() {
           })
             .then((res) => res.json())
             .then((statusData) => {
-              setStatus(statusData)
+              setStatus(statusData);
             })
             .catch((error) =>
               console.error("Error updating queue status:", error)
@@ -190,7 +193,6 @@ export default function QueuePage() {
     return "border-gray-400";
   };
 
-
   return (
     <div className={`${getBackgroundColor(dynamicStatus?.position)}`}>
       <div className="flex flex-col h-full pt-16">
@@ -214,7 +216,9 @@ export default function QueuePage() {
         <div className="bg-white h-full rounded-t-[25px] flex justify-center">
           <div className="flex flex-col mt-48 items-center gap-10">
             <div className="text-[#242F40] text-3xl">Reservation for:</div>
-            <div className="text-2xl line-clamp-2 text-center px-4">{info?.data.shop_description}</div>
+            <div className="text-2xl line-clamp-2 text-center px-4">
+              {info?.data.shop_description}
+            </div>
 
             {isCustomerTurn ? (
               <div></div>
@@ -235,7 +239,9 @@ export default function QueuePage() {
               <div className="text-green-500">Your Queue Now</div>
             ) : (
               <button
-                className={`${getBackgroundColor(dynamicStatus?.position)} rounded-3xl text-white py-[15px] w-10/12`}
+                className={`${getBackgroundColor(
+                  dynamicStatus?.position
+                )} rounded-3xl text-white py-[15px] w-10/12`}
                 onClick={handleCancelQueue}
               >
                 Cancel Queue
@@ -244,6 +250,6 @@ export default function QueuePage() {
           </div>
         </div>
       </div>
-    </div >
+    </div>
   );
 }

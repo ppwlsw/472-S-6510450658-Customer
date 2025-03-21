@@ -1,6 +1,6 @@
 import axios, { type AxiosInstance } from "axios";
 import axiosRetry from "axios-retry";
-import { getAuthCookie, type AuthCookieProps } from "~/utils/cookie";
+import { useAuth } from "./auth";
 
 function useAxiosInstance(
     request: Request,
@@ -24,7 +24,8 @@ function useAxiosInstance(
                 let token = custom_token;
     
                 if (!token) {
-                    const cookie: AuthCookieProps = await getAuthCookie({ request });
+                    const { getCookie } = useAuth;
+                    const cookie =  await getCookie({ request });
                     token = cookie?.token;
                 }
     
