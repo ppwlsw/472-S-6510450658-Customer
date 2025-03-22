@@ -2,6 +2,7 @@ interface QueueCardProps {
     queue: {
         shop_name: string;
         created_at: string;
+
         // Other queue properties can be added here
     }
 }

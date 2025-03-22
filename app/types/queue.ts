@@ -38,3 +38,14 @@ export interface Queue {
 export interface Queues {
   data: Queue[];
 }
+
+export interface QueueWaiting {
+  queue_id: number;
+  shop_name: string;
+  status: string;
+  shop_image_url: string;
+}
+
+export interface QueueWaitings {
+  data: QueueWaiting[]
+}
