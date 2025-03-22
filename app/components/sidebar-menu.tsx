@@ -1,5 +1,6 @@
 import { Link, useLocation } from "react-router";
 import GapController from "./gap-control";
+
 import {
   House,
   ScanQrCode,
@@ -7,12 +8,15 @@ import {
   User,
   Store,
   type LucideIcon,
+  LogOut,
 } from "lucide-react";
 import { useEffect } from "react";
 
 interface SidebarMenuProps {
   onClose: () => void;
 }
+
+type PrefetchValue = "intent" | "render" | "viewport" | "none" | undefined;
 
 interface SidebarItemProps {
   icon: LucideIcon;
@@ -23,6 +27,7 @@ interface SidebarItemProps {
   text: string;
   path: string;
   currentPath: string;
+  prefetch?: PrefetchValue
 }
 
 function SidebarItem({
@@ -34,11 +39,12 @@ function SidebarItem({
   text,
   path,
   currentPath,
+  prefetch
 }: SidebarItemProps) {
   const isCurrentPage = currentPath.startsWith(path);
 
   return (
-    <Link to={path} prefetch="viewport">
+    <Link to={path} prefetch={prefetch ?? "viewport"}>
       <div
         className={`p-2 cursor-pointer rounded-md ${
           isCurrentPage
@@ -82,49 +88,63 @@ function SidebarMenu({ onClose }: SidebarMenuProps) {
           <h1 className="text-white font-semibold text-lg">SeeQ</h1>
         </div>
 
-        <div className="mt-6 space-y-2 text-white">
+        <div className="flex flex-col mt-6 space-y-2 text-white h-full justify-between">
+          <div>
+            <SidebarItem
+              icon={House}
+              gap={16}
+              y_axis={false}
+              width={20}
+              height={20}
+              text="Home"
+              path="/homepage"
+              currentPath={currentPath}
+            />
+            <SidebarItem
+              icon={ScanQrCode}
+              gap={16}
+              y_axis={false}
+              width={20}
+              height={20}
+              text="Scan QR"
+              path="/scan"
+              currentPath={currentPath}
+            />
+            <SidebarItem
+              icon={Map}
+              gap={16}
+              y_axis={false}
+              width={20}
+              height={20}
+              text="Map"
+              path="/map"
+              currentPath={currentPath}
+            />
+            <SidebarItem
+              icon={User}
+              gap={16}
+              y_axis={false}
+              width={20}
+              height={20}
+              text="Profile"
+              path="/profile"
+              currentPath={currentPath}
+            />
+          </div>
+
           <SidebarItem
-            icon={House}
+            icon={LogOut}
             gap={16}
             y_axis={false}
             width={20}
             height={20}
-            text="Home"
-            path="/homepage"
+            text="Logout"
+            path="/logout"
             currentPath={currentPath}
-          />
-          <SidebarItem
-            icon={ScanQrCode}
-            gap={16}
-            y_axis={false}
-            width={20}
-            height={20}
-            text="Scan QR"
-            path="/scan"
-            currentPath={currentPath}
-          />
-          <SidebarItem
-            icon={Map}
-            gap={16}
-            y_axis={false}
-            width={20}
-            height={20}
-            text="Map"
-            path="/map"
-            currentPath={currentPath}
-          />
-          <SidebarItem
-            icon={User}
-            gap={16}
-            y_axis={false}
-            width={20}
-            height={20}
-            text="Profile"
-            path="/profile"
-            currentPath={currentPath}
+            prefetch="none"
           />
         </div>
-{/* 
+        {/* 
         <div className="h-full flex flex-col-reverse">
           <SidebarItem
             icon={Store}

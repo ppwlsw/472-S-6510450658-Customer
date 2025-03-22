@@ -71,7 +71,6 @@ export async function requestRegister(
     method: "POST",
     body: formData,
   });
-  console.log(response);
   
   return {
     status: response.status,
@@ -140,13 +139,29 @@ async function validateAuthCookie({ request }: { request: Request}): Promise<boo
 
 
 interface useAuthProps {
+  logout: (token: string) => Promise<ResponseMessageProps>,
   getCookie: ({ request }: { request: Request }) => Promise<AuthCookieProps>,
   validate: ({ request }: { request: Request }) => Promise<boolean>,
 }
 
-
+async function logout(token: string):  Promise<ResponseMessageProps>{
+  const response = await fetch(`${API_BASE_URL}/auth/logout`, {
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`
+    },
+    method: "POST",
+  });
+  return {
+    data: {},
+    status: response.status,
+    error: response.status != 204 ? "เกิดข้อผิดพลาด" : ""
+  }
+}
 
 export const useAuth: useAuthProps = {
   getCookie: getAuthCookie,
-  validate: validate
+  validate: validate,
+  logout: logout
 }
+

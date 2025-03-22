@@ -26,6 +26,7 @@ type Params = {
   "/reset-password": {};
   "/profile-edit": {};
   "/register": {};
+  "/logout": {};
   "/login": {};
   "/test": {};
   "/homepage": {};

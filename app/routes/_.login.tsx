@@ -30,10 +30,16 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
   const token: string = url.searchParams.get("token") as string;
   const user_id: string = url.searchParams.get("id") as string;
+  const role: string = url.searchParams.get("role") as string;
+
   if (token) {
     const decrypted = (await requestDecryptToken(token)).data
       .plain_text as string;
-    const cookie = await authCookie.serialize(decrypted);
+    const cookie = await authCookie.serialize({
+      token: decrypted,
+      user_id: user_id,
+      role: role
+    });
 
     const user = await defaultFetcherUserInfo(request, parseInt(user_id), decrypted);
     
