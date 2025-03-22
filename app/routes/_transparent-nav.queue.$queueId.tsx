@@ -30,7 +30,7 @@ interface LoaderData {
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   var user;
-  const  { getCookie } = useAuth;
+  const { getCookie } = useAuth;
   const cookie = await getCookie({ request });
 
   user = {
@@ -236,7 +236,9 @@ export default function QueuePage() {
             )}
 
             {isCustomerTurn ? (
-              <div className="text-green-500">Your Queue Now</div>
+              <div className="text-green-500">
+                ✔
+              </div>
             ) : (
               <button
                 className={`${getBackgroundColor(

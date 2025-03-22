@@ -15,6 +15,7 @@ export interface QueueStatus {
 }
 
 export interface QueueReserved {
+  queue_id: number;
   shop_name: string;
   created_at: string;
   shop_image_url: string;

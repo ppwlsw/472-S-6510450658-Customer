@@ -1,7 +1,7 @@
 import { redirect, useLoaderData, type LoaderFunctionArgs } from "react-router";
 import { fetchQueueCompleteInformation } from "~/repositories/queue.repository";
 import type { QueueInformation } from "~/types/queue";
-import { getAuthCookie, type AuthCookieProps } from "~/utils/cookie";
+import { useAuth } from "~/utils/auth";
 
 interface LoaderData {
   queueId: string;
@@ -15,10 +15,8 @@ interface LoaderData {
 export async function loader({ request, params }: LoaderFunctionArgs) {
   var user
   try {
-    const cookie: AuthCookieProps = await getAuthCookie({ request });
-    if (!cookie) {
-      return redirect("/login")
-    }
+    const { getCookie } = useAuth;
+    const cookie = await getCookie({ request });
 
     user = {
       userId: cookie.user_id,
@@ -69,7 +67,7 @@ export default function QueuePage() {
             flex justify-center items-center`}
           >
             <h1 className="text-5xl font-bold text-[#242F40]">
-              &#x2713
+              ✔
             </h1>
           </div>
         </div>
