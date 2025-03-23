@@ -16,6 +16,8 @@ export async function loader({request}:LoaderFunctionArgs) {
     const payload = {
         image: image_url
     }
+
+    console.log(image_url)
     return payload
 }
 

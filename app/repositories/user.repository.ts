@@ -21,3 +21,18 @@ export async function defaultFetcherUserInfo(request:Request, user_id: number, t
 
   return user
 }
+
+
+
+export async function updateUserInfo(request:Request, user_id:number, {name, phone}:{name:string; phone:string}) {
+    try{
+        console.log(user_id)
+        const axios = useAxiosInstance(request);
+        const response = await axios.put(`/users/${user_id}`, { name, phone });;
+
+        return response
+    }catch(e){
+        console.log(e)
+        throw new Error("Error fetch")
+    }
+}
