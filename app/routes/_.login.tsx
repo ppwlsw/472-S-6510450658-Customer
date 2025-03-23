@@ -4,6 +4,8 @@ import {
   Link,
   redirect,
   useFetcher,
+  useLoaderData,
+  useNavigate,
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
 } from "react-router";
@@ -15,22 +17,31 @@ import {
   useAuth,
 } from "~/utils/auth";
 import { motion } from "framer-motion";
-import {
-  defaultFetcherUserInfo,
-} from "~/repositories/user.repository";
+import { defaultFetcherUserInfo } from "~/repositories/user.repository";
 import { DataCenter } from "~/provider/datacenter";
 
+interface LoaderReturnProps {
+  error: string;
+}
+
 export async function loader({ request }: LoaderFunctionArgs) {
-  const  { getCookie } = useAuth;
-  const existCookie = await getCookie( {request} );
+  const { getCookie } = useAuth;
+  const existCookie = await getCookie({ request });
   if (existCookie) {
-    throw redirect("/homepage")
+    throw redirect("/homepage");
   }
 
   const url = new URL(request.url);
   const token: string = url.searchParams.get("token") as string;
   const user_id: string = url.searchParams.get("id") as string;
   const role: string = url.searchParams.get("role") as string;
+  const error: string = url.searchParams.get("error") as string;
+
+  if (error) {
+    return {
+      error: "อีเมลถูกใช้ไปแล้ว",
+    };
+  }
 
   if (token) {
     const decrypted = (await requestDecryptToken(token)).data
@@ -38,11 +49,15 @@ export async function loader({ request }: LoaderFunctionArgs) {
     const cookie = await authCookie.serialize({
       token: decrypted,
       user_id: user_id,
-      role: role
+      role: role,
     });
 
-    const user = await defaultFetcherUserInfo(request, parseInt(user_id), decrypted);
-    
+    const user = await defaultFetcherUserInfo(
+      request,
+      parseInt(user_id),
+      decrypted
+    );
+
     DataCenter.addData("user_image_info", user.image_url as string);
     DataCenter.addData("user_name_info", user.name as string);
 
@@ -109,10 +124,10 @@ export async function action({ request }: ActionFunctionArgs) {
     DataCenter.addData("user_image_info", user.image_url as string);
     DataCenter.addData("user_name_info", user.name as string);
 
-    console.log("login")
+    console.log("login");
     return redirect("/homepage", {
       headers: {
-        "Set-Cookie": cookie ,
+        "Set-Cookie": cookie,
       },
     });
   }
@@ -257,6 +272,8 @@ function LoginModal({ fetcherKey }: { fetcherKey: string }) {
   const fetcher = useFetcher<ActionMessage>({
     key: fetcherKey,
   });
+  const loader = useLoaderData<LoaderReturnProps>();
+  const navigator = useNavigate();
   return (
     <motion.div
       initial={{ opacity: 0, display: "none" }}
@@ -264,7 +281,9 @@ function LoginModal({ fetcherKey }: { fetcherKey: string }) {
         opacity: 1,
         display:
           fetcher.formData?.get("_action") != "reset" &&
-          (fetcher.state === "submitting" || fetcher.data?.error != undefined)
+          (fetcher.state === "submitting" ||
+            fetcher.data?.error != undefined ||
+            (loader != undefined && loader.error))
             ? "flex"
             : "none",
         transition: {
@@ -274,6 +293,9 @@ function LoginModal({ fetcherKey }: { fetcherKey: string }) {
       }}
       className="absolute z-50 top-0 flex flex-col justify-center items-center w-full h-full text-obsidian"
       onClick={() => {
+        if (loader != undefined && loader.error) {
+          navigator("/login");
+        }
         fetcher.submit(
           {
             _action: "reset",
@@ -286,7 +308,7 @@ function LoginModal({ fetcherKey }: { fetcherKey: string }) {
     >
       <div className="relative w-full h-full bg-obsidian opacity-25"></div>
       <div className="flex flex-col justify-center items-center gap-3 absolute rounded-lg shadow-lg bg-white-smoke p-6">
-        {fetcher.data?.error == undefined ? (
+        {fetcher.data?.error == undefined && (loader != undefined && !loader.error) ? (
           <span className="inline-block w-[20px] h-[20px] border-4 border-gray-400 rounded-full border-t-white-smoke animate-spin"></span>
         ) : (
           <motion.div
@@ -304,13 +326,19 @@ function LoginModal({ fetcherKey }: { fetcherKey: string }) {
         <motion.p
           animate={{
             opacity: 1,
-            color: fetcher.data?.error != undefined ? "#F44336" : "#0b1215",
+            color:
+              fetcher.data?.error != undefined ||
+              (loader != undefined && loader.error)
+                ? "#F44336"
+                : "#0b1215",
             transition: { duration: 0.3, ease: "easeIn" },
           }}
           className="text-xl text-obsidian"
         >
           {fetcher.data?.error != undefined
             ? fetcher.data.error
+            : loader != undefined && loader.error
+            ? loader.error
             : "กำลังโหลด..."}
         </motion.p>
       </div>
@@ -321,7 +349,7 @@ function LoginModal({ fetcherKey }: { fetcherKey: string }) {
 export default function Login() {
   const fetcher = useFetcher<ActionMessage>({
     key: "DefaultLoginFetcher",
-  }); 
+  });
   return (
     <div className="relative h-svh w-svw bg-primary-dark-50 z-0">
       <h1 className="absolute opacity-0 top-0 left-0 z-40">{fetcher.state}</h1>
