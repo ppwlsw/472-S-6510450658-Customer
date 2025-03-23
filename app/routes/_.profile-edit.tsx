@@ -13,7 +13,7 @@ import {
 } from 'react-router';
 import { fetchUserInfo, updateUserAvatar, updateUserInfo } from '~/repositories/user.repository';
 import type { User } from '~/types/user';
-import { sendForgetPasswordRequest, sendResetPasswordRequest } from '~/repositories/auth.repository';
+import { sendForgetPasswordRequest } from '~/repositories/auth.repository';
 
 const profileSchema = z.object({
   name: z.string().min(2, "ชื่อคุณต้องยาวกว่า 2 ตัวอักษร"),
@@ -200,7 +200,6 @@ function ProfileEditPage() {
   const profileFetcher = useFetcher<ActionMessage>();
   const nav = useNavigation();
   const [searchParams, setSearchParams] = useSearchParams();
-  const fileInputRef = useRef<HTMLInputElement>(null);
   
   const isImageUploading = 
     (imageUploadFetcher.state === 'submitting' && 
@@ -236,10 +235,10 @@ function ProfileEditPage() {
         </Link>
       </nav>
       <div className="h-auto flex flex-col items-center pb-8">
-        <div className="relative z-20">
+        <div className="relative">
           <div 
-            className="rounded-full w-40 h-40 -mt-20 z-10 border-4 border-white mb-8 relative overflow-hidden cursor-pointer"
-            onClick={() => fileInputRef.current?.click()}
+            className="rounded-full w-40 h-40 -mt-20 border-4 border-white mb-8 relative overflow-hidden cursor-pointer"
+            onClick={() => !isImageUploading && document.getElementById("fileInput")?.click()}
           >
             <img 
               src={profileFetcher.data?.values?.image_url || user?.image_url || "/default.png"}
@@ -257,9 +256,12 @@ function ProfileEditPage() {
               </div>
             )}
           </div>
+          <div className='absolute right-3 bottom-7 bg-white text-black rounded-full p-2 border-[1px] border-gray-200'>
+            <Pencil size={28} />
+          </div>
+          
 
           <input 
-            ref={fileInputRef}
             type="file" 
             id="fileInput" 
             className="hidden" 
