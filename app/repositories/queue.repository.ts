@@ -33,6 +33,18 @@ export async function fetchQueueInformation(queue_id: string, request: Request) 
   }
 }
 
+export async function fetchQueueCompleteInformation(queue_id: string, request: Request) {
+  try {
+    const axios = useAxiosInstance(request, { raw: true })
+    const response = await axios.get<QueueInformation>(`/queues/${queue_id}/getCompleteQueue`)
+
+    return response.data
+  } catch (e) {
+    console.error(e)
+    throw new Error("Error fetch")
+  }
+}
+
 /*
  * use in queue page
  * for fetch how many queue use need to wait*/

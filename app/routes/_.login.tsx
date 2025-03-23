@@ -8,11 +8,12 @@ import {
   type LoaderFunctionArgs,
 } from "react-router";
 import {
+  authCookie,
   requestDecryptToken,
   requestGoogleLogin,
   requestLogin,
+  useAuth,
 } from "~/utils/auth";
-import { authCookie, type AuthCookieProps } from "~/utils/cookie";
 import { motion } from "framer-motion";
 import {
   defaultFetcherUserInfo,
@@ -20,13 +21,25 @@ import {
 import { DataCenter } from "~/provider/datacenter";
 
 export async function loader({ request }: LoaderFunctionArgs) {
+  const  { getCookie } = useAuth;
+  const existCookie = await getCookie( {request} );
+  if (existCookie) {
+    throw redirect("/homepage")
+  }
+
   const url = new URL(request.url);
   const token: string = url.searchParams.get("token") as string;
   const user_id: string = url.searchParams.get("id") as string;
+  const role: string = url.searchParams.get("role") as string;
+
   if (token) {
     const decrypted = (await requestDecryptToken(token)).data
       .plain_text as string;
-    const cookie = await authCookie.serialize(decrypted);
+    const cookie = await authCookie.serialize({
+      token: decrypted,
+      user_id: user_id,
+      role: role
+    });
 
     const user = await defaultFetcherUserInfo(request, parseInt(user_id), decrypted);
     
@@ -84,11 +97,12 @@ export async function action({ request }: ActionFunctionArgs) {
 
     const decrypted = (await requestDecryptToken(token)).data
       .plain_text as string;
+
     const cookie = await authCookie.serialize({
       token: decrypted,
       user_id: user_id,
       role: role,
-    } as AuthCookieProps);
+    });
 
     const user = await defaultFetcherUserInfo(request, user_id, decrypted);
 

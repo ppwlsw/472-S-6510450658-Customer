@@ -12,6 +12,9 @@ type Params = {
   "/merchant/store-management": {};
   "/merchant/dashboard": {};
   "/merchant/queue": {};
+  "/queue-complete/:queueId": {
+    "queueId": string;
+  };
   "/queue/:queueId": {
     "queueId": string;
   };
@@ -23,9 +26,9 @@ type Params = {
   "/reset-password": {};
   "/profile-edit": {};
   "/register": {};
+  "/logout": {};
   "/login": {};
   "/test": {};
-  "/copy": {};
   "/homepage": {};
   "/map": {};
 };

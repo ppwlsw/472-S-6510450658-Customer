@@ -8,6 +8,7 @@ export async function getShopsInfo(request: Request) {
 
         return response.data.data
     }catch(e){
+        console.log(e);
         return []
     }
 }
