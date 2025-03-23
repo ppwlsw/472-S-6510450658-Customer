@@ -4,6 +4,7 @@ import { fetchUserInfo } from "~/repositories/user.repository";
 import QueueCard from "~/components/queue-card-profile";
 import { useAuth } from "~/utils/auth";
 import type { UserResponse } from "~/types/user";
+import { prefetchImage } from "~/utils/image-proxy";
 
 // Types
 interface ActionMessage {
@@ -30,6 +31,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
     fetchUserInfo(user.userId, request),
     fetchQueueReservedInfo(request)
   ]);
+
+  userData.data.image_url = await prefetchImage(userData.data.image_url);
 
   return {
     user: userData,

@@ -14,12 +14,13 @@ import {
 import { fetchUserInfo, updateUserAvatar, updateUserInfo } from '~/repositories/user.repository';
 import type { User } from '~/types/user';
 import { sendForgetPasswordRequest } from '~/repositories/auth.repository';
+import { prefetchImage } from '~/utils/image-proxy';
 
 const profileSchema = z.object({
   name: z.string().min(2, "ชื่อคุณต้องยาวกว่า 2 ตัวอักษร"),
   email: z.string().email("กรุณากรอกอีเมลที่ถูกรูปแบบ"),
   phoneNumber: z.string().regex(/^[0-9]{10}$/, "หมายเลขโทรศัพท์ต้องมี 10 ตัว"),
-  image_url: z.string().url("ต้องใช้ลิ้งค์รูปโปรไฟล์ที่ถูกต้อง")
+  image_url: z.string().min(3, "url ต้องยาวอย่างน้อย 3 ตัว")
 })
 
 type ProfileFormData = z.infer<typeof profileSchema>
@@ -104,12 +105,13 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const toast = url.searchParams.get('toast');
   const toastType = url.searchParams.get('toastType');
   
-  const user: User = await fetchUserInfo(117, request);
+  const user: User = await fetchUserInfo(108, request);
+  const image_url  = await prefetchImage(user.data.image_url);
   const profileData: ProfileFormData = {
     name: user.data.name,
     email: user.data.email,
     phoneNumber: user.data.phone,
-    image_url: user.data.image_url
+    image_url: image_url
   };
 
   return { 
@@ -141,7 +143,7 @@ export const action: ActionFunction = async({ request }) => {
     }
 
     try{
-      await updateUserInfo(request, 117, {name:name, phone:phoneNumber});
+      await updateUserInfo(request, 108, {name:name, phone:phoneNumber});
       redirectUrl.searchParams.set('toast', 'อัพเดทข้อมูลในโปรไฟล์คุณเรียบร้อยแล้วครับ');
       redirectUrl.searchParams.set('toastType', 'success');
       return Response.redirect(redirectUrl.toString());
@@ -172,7 +174,7 @@ export const action: ActionFunction = async({ request }) => {
 
     if(imageFile){
       try{
-        await updateUserAvatar(request, 117, imageFile);
+        await updateUserAvatar(request, 108, imageFile);
         
         redirectUrl.searchParams.set('toast', 'อัพเดทรูปโปรไฟล์ของคุณเรียบร้อบแล้วครับ');
         redirectUrl.searchParams.set('toastType', 'success');
