@@ -308,7 +308,7 @@ function LoginModal({ fetcherKey }: { fetcherKey: string }) {
     >
       <div className="relative w-full h-full bg-obsidian opacity-25"></div>
       <div className="flex flex-col justify-center items-center gap-3 absolute rounded-lg shadow-lg bg-white-smoke p-6">
-        {fetcher.data?.error == undefined && (loader != undefined && !loader.error) ? (
+        {fetcher.data?.error == undefined && (loader == undefined) ? (
           <span className="inline-block w-[20px] h-[20px] border-4 border-gray-400 rounded-full border-t-white-smoke animate-spin"></span>
         ) : (
           <motion.div
