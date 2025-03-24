@@ -10,7 +10,8 @@ import {
   type LucideIcon,
   LogOut,
 } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { LogoutModal } from "./logout-modal";
 
 interface SidebarMenuProps {
   onClose: () => void;
@@ -27,7 +28,7 @@ interface SidebarItemProps {
   text: string;
   path: string;
   currentPath: string;
-  prefetch?: PrefetchValue
+  prefetch?: PrefetchValue;
 }
 
 function SidebarItem({
@@ -39,7 +40,7 @@ function SidebarItem({
   text,
   path,
   currentPath,
-  prefetch
+  prefetch,
 }: SidebarItemProps) {
   const isCurrentPage = currentPath.startsWith(path);
 
@@ -71,6 +72,8 @@ function SidebarMenu({ onClose }: SidebarMenuProps) {
       document.body.style.overflow = "auto";
     };
   }, []);
+
+  const [isPoping, setIsPoping] = useState<boolean>(false);
 
   return (
     <div
@@ -132,17 +135,18 @@ function SidebarMenu({ onClose }: SidebarMenuProps) {
             />
           </div>
 
-          <SidebarItem
-            icon={LogOut}
-            gap={16}
-            y_axis={false}
-            width={20}
-            height={20}
-            text="Logout"
-            path="/logout"
-            currentPath={currentPath}
-            prefetch="none"
-          />
+          <LogoutModal isPoping={isPoping} setIsPoping={setIsPoping} />
+          <button
+            className="p-2 cursor-pointer rounded-md hover:bg-gray-700"
+            onClick={() => {
+              setIsPoping(true);
+            }}
+          >
+            <GapController gap={16} y_axis={false}>
+              <LogOut width={20} height={20} />
+              <h1>ออกจากระบบ</h1>
+            </GapController>
+          </button>
         </div>
         {/* 
         <div className="h-full flex flex-col-reverse">
