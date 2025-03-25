@@ -225,10 +225,6 @@ export default function QueuePage() {
             ) : (
               <div className="flex flex-row gap-20 text-xl">
                 <div className="flex flex-col items-center">
-                  <h2>12</h2>
-                  <h3>Estimate Time</h3>
-                </div>
-                <div className="flex flex-col items-center">
                   <h2>{dynamicStatus.position}</h2>
                   <h3>Person ahead</h3>
                 </div>
