@@ -1,5 +1,5 @@
 services:
-  customer.seeq.frontend:
+  seeq.customer.frontend:
     image: oven/bun:1.2.3
     ports:
       - "3101:5173"
