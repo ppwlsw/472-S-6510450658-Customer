@@ -7,8 +7,9 @@ import QueueCard from "~/components/queue-card";
 import XAxisSlide from "~/components/x-axis-slide";
 import MenuCard from "~/components/menu-card";
 import { redirect, useFetcher, useLoaderData, type ActionFunctionArgs, type LoaderFunctionArgs } from "react-router";
-import { getShopInfoByID, sendBookQueueRequest } from "~/repositories/shop.repository";
+import {getShopQueueInfoByID, getShopsInfoByID, sendBookQueueRequest } from "~/repositories/shop.repository";
 import type { Queue } from "~/types/queue";
+import { prefetchImage } from "~/utils/image-proxy";
 
 interface ActionMessage {
   success: boolean;
@@ -21,11 +22,14 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   if (!shopID) throw redirect("/");
 
   try {
-    const data: Queue[] = await getShopInfoByID(request, shopID);
+    const data: Queue[] = await getShopQueueInfoByID(request, shopID);
+    const shopInfo: Shop = await getShopsInfoByID(request, shopID)
+    shopInfo.image_url = await prefetchImage(shopInfo.image_url || "")
+    console.log(shopInfo.image_uri)
 
-    return data
+    return {data, shopInfo}
   } catch (e) {
-    return []
+    return {data:[], shopInfo:null}
   }
 }
 
@@ -42,8 +46,11 @@ export async function action({ request }: ActionFunctionArgs) {
 
 function ShopPage() {
   const fetcher = useFetcher<ActionMessage>();
-  const loaderData = useLoaderData<Queue[]>();
-  const queues = loaderData || [];
+  const loaderData = useLoaderData<{ data: Queue[]; shopInfo: Shop | null }>();
+  const queues = loaderData.data || [];
+  const shop = loaderData.shopInfo;
+
+  if(!shop) return redirect("/homepage")
 
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [selectedQueue, setSelectedQueue] = useState<number | null>(null);
@@ -58,21 +65,22 @@ function ShopPage() {
   return (
     <div className="relative pb-52 overflow-x-hidden mt-[-1.5px]">
       <img
-        src="/starbuck.png"
-        alt="Shop"
+        src={shop.image_url}
+        alt="Shop Image"
         className="h-[28.8vh] w-full object-cover filter brightness-50"
       />
 
       <div className="absolute top-[21vh] left-0 right-0 bg-white mx-3.5 px-4 py-2.5 rounded-xl shadow-lg">
         <div className="flex flex-row h-[11.8vh] items-center">
           <img
-            src="/starbuck.png"
+            src={shop.image_url}
             className="w-[80px] h-[80px] rounded-md object-cover"
           />
 
           <div className="ml-4 w-full">
             <GapController gap={5}>
               <h1 className="font-bold text-[20px] truncate w-[250px]">
+                {shop.name}
               </h1>
               <div className="flex flex-row items-center text-black">
                 <Hourglass width={16} height={16} />
@@ -81,7 +89,7 @@ function ShopPage() {
               <div className="flex flex-row items-center text-black/60">
                 <MapPin width={16} height={16} />
                 <p className="ml-2 text-[13px] font-normal truncate w-[250px]">
-                  โครงการ Box Space ห้องเลขที่ E3 ชั้นที่ 1 เลขที่ 1
+                  {shop.address}
                 </p>
               </div>
             </GapController>
@@ -178,11 +186,7 @@ function ShopPage() {
                   <GapController gap={15}>
                     <h1 className="text-[32px] font-bold">รายละเอียด</h1>
                     <p className="text-[12px] font-normal">
-                      ศาสตราจารย์ ดร.สมบูรณ์ ปิ้งย่าง เกิดเมื่อปี พ.ศ. 2508
-                      ในจังหวัดเชียงใหม่
-                      เติบโตมาในครอบครัวที่รักการทำอาหารและมีร้านหมูกระทะเล็ก ๆ
-                      เป็นของตนเอง
-                      ความสนใจในศาสตร์แห่งการปิ้งย่างและการหมักเนื้อทำให้เขามุ่งมั่นศึกษาด้านวิทยาศาสตร์อาหารตั้งแต่เยาว์วัย
+                      {shop.description}
                     </p>
                     <GapController gap={5} y_axis={false}>
                       <MapPin width={14} height={17}></MapPin>
@@ -190,7 +194,7 @@ function ShopPage() {
                         className="underline text-[12px] font-bold"
                         onClick={() =>
                           window.open(
-                            "https://maps.app.goo.gl/1zWR2sKegkbLM4yN8",
+                            `https://www.google.com/maps?q=${shop.latitude},${shop.longitude}`,
                             "_blank"
                           )
                         }
@@ -202,7 +206,7 @@ function ShopPage() {
                     <GapController gap={5} y_axis={false}>
                       <Phone width={14} height={17}></Phone>
                       <p className="underline text-[12px] font-bold">
-                        091-234-5678
+                        {`${shop.phone.slice(0, 4)}-${shop.phone.slice(4, 8)}-${shop.phone.slice(6)}`}
                       </p>
                     </GapController>
                   </GapController>

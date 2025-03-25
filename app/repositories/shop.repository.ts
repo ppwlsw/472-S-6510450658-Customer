@@ -13,7 +13,14 @@ export async function getShopsInfo(request: Request) {
     }
 }
 
-export async function getShopInfoByID(request: Request, shop_id: string) {
+export async function getShopsInfoByID(request: Request, shop_id: string) {
+    const axios = useAxiosInstance(request, {raw:true});
+    const response = await axios.get("/shops/"+shop_id);
+
+    return response.data.data;
+}
+
+export async function getShopQueueInfoByID(request: Request, shop_id: string) {
     const axios = useAxiosInstance(request, { raw: true })
     const response = await axios.get<Queues>("/queues?shop_id=" + shop_id)
 

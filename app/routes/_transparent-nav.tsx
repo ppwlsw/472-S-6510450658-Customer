@@ -4,13 +4,14 @@ import { Link, Outlet, useLoaderData, type LoaderFunctionArgs } from "react-rout
 import SidebarMenu from "~/components/sidebar-menu";
 import { DataCenter } from "~/provider/datacenter";
 import { useAuth } from "~/utils/auth";
+import { prefetchImage } from "~/utils/image-proxy";
 
 export async function loader({ request }: LoaderFunctionArgs) {
     const { validate } = useAuth;
     await validate({ request });
 
     const payload = {
-        image: DataCenter.getData("user_image_info") as string
+        image: await prefetchImage(DataCenter.getData("user_image_info") as string)
     }
 
     return payload

@@ -1,4 +1,4 @@
-import type { QueueInformation, QueueReserveds, QueueStatus, QueueWaiting, QueueWaitings } from "~/types/queue"
+import type { Queue, QueueInformation, QueueReserveds, QueueStatus, QueueWaiting, QueueWaitings } from "~/types/queue"
 import useAxiosInstance from "~/utils/axiosInstance"
 
 
@@ -74,4 +74,11 @@ export async function fetchQueueWaiting(request: Request) {
     console.error(e)
     throw new Error("Error fetch")
   }
+}
+
+export async function fetchQueueInfoByID(request: Request, queue_id:string) {
+    const axios = useAxiosInstance(request, {raw:true});
+    const response = await axios.get(`/queues/${queue_id}`)
+
+    return response.data.data;
 }
