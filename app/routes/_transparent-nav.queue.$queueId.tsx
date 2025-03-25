@@ -195,7 +195,7 @@ export default function QueuePage() {
 
   return (
     <div className={`${getBackgroundColor(dynamicStatus?.position)}`}>
-      <div className="flex flex-col h-full pt-16">
+      <div className="flex flex-col h-screen pt-6">
         <div className="mt-10 text-white ml-4 mb-36">
           <h1 className="text-2xl">{info?.data.shop_name}</h1>
           <p className="ml-2 text-l">

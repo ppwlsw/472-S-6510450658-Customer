@@ -11,6 +11,9 @@ interface ActionMessage {
   success: boolean;
   message: string;
 }
+interface EmptyStateProps {
+  message: string;
+}
 
 // Loader function
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -131,7 +134,7 @@ function ProfileHeader({ image_url, name, phone, email }: UserResponse) {
 }
 
 // Empty state component
-function EmptyState({ message }) {
+function EmptyState({ message }: EmptyStateProps) {
   return (
     <div className="text-center py-10 bg-white rounded-lg shadow-sm">
       <p className="text-gray-500 text-lg">{message}</p>

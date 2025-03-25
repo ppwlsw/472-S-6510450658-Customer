@@ -53,7 +53,7 @@ export default function QueuePage() {
   const { info } = useLoaderData() as LoaderData;
 
   return (
-    <div className={`bg-green-500`}>
+    <div className={`bg-green-500 h-screen`}>
       <div className="flex flex-col h-full pt-16">
         <div className="mt-10 text-white ml-4 mb-36">
           <h1 className="text-2xl">{info?.data.shop_name}</h1>

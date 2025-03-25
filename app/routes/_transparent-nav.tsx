@@ -5,8 +5,8 @@ import SidebarMenu from "~/components/sidebar-menu";
 import { DataCenter } from "~/provider/datacenter";
 import { useAuth } from "~/utils/auth";
 
-export async function loader({request}:LoaderFunctionArgs) {
-    const  { validate } = useAuth;
+export async function loader({ request }: LoaderFunctionArgs) {
+    const { validate } = useAuth;
     await validate({ request });
 
     const payload = {
@@ -37,13 +37,13 @@ function TransparentNav() {
                 </div>
 
                 <div className='rounded-full bg-zinc-600 w-[47px] h-[47px] overflow-hidden'>
-                <Link to="/profile">
-                <img
-                    src={image}
-                    alt="User profile"
-                    className="object-cover w-full h-full"
-                />
-                </Link>
+                    <Link to="/profile">
+                        <img
+                            src={image}
+                            alt="User profile"
+                            className="object-cover w-full h-full"
+                        />
+                    </Link>
                 </div>
             </nav>
 
