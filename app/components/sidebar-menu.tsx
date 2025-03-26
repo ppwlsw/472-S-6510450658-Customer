@@ -9,6 +9,7 @@ import {
   Store,
   type LucideIcon,
   LogOut,
+  Search,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { LogoutModal } from "./logout-modal";
@@ -104,6 +105,16 @@ function SidebarMenu({ onClose }: SidebarMenuProps) {
               currentPath={currentPath}
             />
             <SidebarItem
+              icon={Search}
+              gap={16}
+              y_axis={false}
+              width={20}
+              height={20}
+              text="Search"
+              path="/search"
+              currentPath={currentPath}
+            />
+            <SidebarItem
               icon={ScanQrCode}
               gap={16}
               y_axis={false}
@@ -148,19 +159,6 @@ function SidebarMenu({ onClose }: SidebarMenuProps) {
             </GapController>
           </button>
         </div>
-        {/* 
-        <div className="h-full flex flex-col-reverse">
-          <SidebarItem
-            icon={Store}
-            gap={16}
-            y_axis={false}
-            width={20}
-            height={20}
-            text="Become Merchant"
-            path="/#"
-            currentPath={currentPath}
-          />
-        </div> */}
       </div>
     </div>
   );

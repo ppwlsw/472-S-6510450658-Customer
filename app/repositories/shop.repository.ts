@@ -1,4 +1,5 @@
 import type { Queue, Queues } from "~/types/queue";
+import type { SearchShopsResponse } from "~/types/search";
 import useAxiosInstance from "~/utils/axiosInstance";
 
 export async function getShopsInfo(request: Request) {
@@ -38,3 +39,13 @@ export async function sendBookQueueRequest(request: Request, queue: Queue) {
     }
 }
 
+export async function searchShopsRequest(request:Request, key:string, page:number) {
+    try{
+        const axios = useAxiosInstance(request, {raw:true})
+        const response = await axios.get<SearchShopsResponse>(`shops/search?key=${key}&page=${page}`)
+
+        return response.data
+    }catch(e){
+       throw e
+    }
+}  

@@ -30,5 +30,6 @@ type Params = {
   "/login": {};
   "/test": {};
   "/homepage": {};
+  "/search": {};
   "/map": {};
 };
