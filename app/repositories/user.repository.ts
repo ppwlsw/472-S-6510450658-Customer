@@ -21,7 +21,6 @@ export async function fetchUserInfo(user_id: number, request: Request) {
 export async function defaultFetcherUserInfo(request:Request, user_id: number, token: string) {
   const axios = useAxiosInstance(request, {custom_token: token})
   const user:any = axios.get(`/users/${user_id}`)
-
   return user
 }
 

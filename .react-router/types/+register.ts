@@ -9,6 +9,7 @@ declare module "react-router" {
 type Params = {
   "/": {};
   "/forget-password": {};
+  "/google-callback": {};
   "/queue-complete/:queueId": {
     "queueId": string;
   };

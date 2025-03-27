@@ -12,7 +12,6 @@ import {
 import {
   authCookie,
   requestDecryptToken,
-  requestGoogleLogin,
   requestLogin,
   useAuth,
 } from "~/utils/auth";
@@ -32,41 +31,12 @@ export async function loader({ request }: LoaderFunctionArgs) {
   }
 
   const url = new URL(request.url);
-  const token: string = url.searchParams.get("token") as string;
-  const user_id: string = url.searchParams.get("id") as string;
-  const role: string = url.searchParams.get("role") as string;
   const error: string = url.searchParams.get("error") as string;
 
   if (error) {
     return {
       error: "อีเมลถูกใช้ไปแล้ว",
     };
-  }
-
-  if (token) {
-    const decrypted = (await requestDecryptToken(token)).data
-      .plain_text as string;
-    const cookie = await authCookie.serialize({
-      token: decrypted,
-      user_id: user_id,
-      role: role,
-    });
-
-    const user = await defaultFetcherUserInfo(
-      request,
-      parseInt(user_id),
-      decrypted
-    );
-
-    DataCenter.addData("user_image_info", user.image_url as string);
-    DataCenter.addData("user_name_info", user.name as string);
-    DataCenter.addData("user_id_info", user_id as string)
-
-    return redirect("/homepage", {
-      headers: {
-        "Set-Cookie": cookie,
-      },
-    });
   }
 }
 
@@ -124,9 +94,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
     DataCenter.addData("user_image_info", user.image_url as string);
     DataCenter.addData("user_name_info", user.name as string);
-    DataCenter.addData("user_id_info", user.id as string);
 
-    console.log("login");
     return redirect("/homepage", {
       headers: {
         "Set-Cookie": cookie,
@@ -135,7 +103,8 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   if (action === "google_login") {
-    return await requestGoogleLogin();
+    const { googleLogin } = useAuth;
+    return googleLogin();
   }
 }
 
