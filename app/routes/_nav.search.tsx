@@ -3,7 +3,6 @@ import { searchShopsRequest } from "~/repositories/shop.repository";
 import type {SearchShopsResponse } from "~/types/search";
 import { calculateDistance } from "~/utils/location";
 import { ChevronLeft, ChevronRight, Search } from "lucide-react";
-import { prefetchImage } from "~/utils/image-proxy";
 import { useFetcher, useNavigation, useSearchParams } from "react-router";
 import SearchShopCard from "~/components/search-shop-card";
 
@@ -40,7 +39,7 @@ export async function action({ request }: { request: Request }) {
     const shopsWithImages = await Promise.all(
       shops.map(async shop => ({
         ...shop,
-        image_url: await prefetchImage(shop.image_url),
+        image_url: shop.image_url,
       }))
     );
 

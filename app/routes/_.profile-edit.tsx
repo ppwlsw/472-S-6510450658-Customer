@@ -18,7 +18,6 @@ import {
 } from "~/repositories/user.repository";
 import type { User } from "~/types/user";
 import { sendForgetPasswordRequest } from "~/repositories/auth.repository";
-import { prefetchImage } from "~/utils/image-proxy";
 import { DataCenter } from "~/provider/datacenter";
 
 const profileSchema = z.object({
@@ -134,7 +133,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const user_id = parseInt(DataCenter.getData("user_id_info") as string);
   const user: User = await fetchUserInfo(user_id, request);
-  const image_url = await prefetchImage(user.data.image_url);
+  const image_url = user.data.image_url;
   const profileData: ProfileFormData = {
     name: user.data.name,
     email: user.data.email,

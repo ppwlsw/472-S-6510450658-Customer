@@ -1,7 +1,6 @@
 import React from 'react';
 import { Hourglass, MapPin } from 'lucide-react';
 import { useNavigate } from 'react-router';
-import { prefetchImage } from '~/utils/image-proxy';
 
 interface ShopCardProps {
   shop_id: number;

@@ -20,7 +20,6 @@ import {
   sendBookQueueRequest,
 } from "~/repositories/shop.repository";
 import type { Queue } from "~/types/queue";
-import { prefetchImage } from "~/utils/image-proxy";
 import { calculateDistance } from "~/utils/location";
 
 interface ActionMessage {
@@ -44,7 +43,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   try {
     const data: Queue[] = await getShopQueueInfoByID(request, shopID);
     const shopInfo: Shop = await getShopsInfoByID(request, shopID);
-    shopInfo.image_url = await prefetchImage(shopInfo.image_url || "");
+    shopInfo.image_url = shopInfo.image_url; 
 
     const items = await getShopRecommendItems(request, shopID);
 

@@ -16,7 +16,6 @@ import { DataCenter } from "~/provider/datacenter";
 import { fetchQueueWaiting } from "~/repositories/queue.repository";
 import { getShopsInfo } from "~/repositories/shop.repository";
 import type { QueueWaitings } from "~/types/queue";
-import { prefetchImage } from "~/utils/image-proxy";
 import { calculateDistance } from "~/utils/location";
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -26,7 +25,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     const queueWaitings: QueueWaitings = await fetchQueueWaiting(request);
 
     for (const shop of shops) {
-      shop.image_url = await prefetchImage(shop.image_url || "");
+      shop.image_url = shop.image_url;
     }
 
     return {

@@ -3,7 +3,6 @@ import MarkerPopup, { type MarkerData } from "~/components/marker_popup";
 import { Loader2 } from "lucide-react";
 import { useLoaderData, type LoaderFunctionArgs } from "react-router";
 import { useAuth } from "~/utils/auth";
-import { prefetchImage } from "~/utils/image-proxy";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const { getCookie } = useAuth;
@@ -34,7 +33,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
     const converted = await Promise.all(
       nearby_shops.data.map(async (shop: any) => {
-        const image_url = await prefetchImage(shop.image_url);
+        const image_url = shop.image_url;
         shop.image_url = image_url;
 
         return shop;
