@@ -1,7 +1,7 @@
-import { ArrowLeft, Lock, Pencil, Loader } from 'lucide-react';
-import GapController from '~/components/gap-control';
-import React, { useRef } from 'react';
-import { z } from 'zod';
+import { ArrowLeft, Lock, Pencil, Loader } from "lucide-react";
+import GapController from "~/components/gap-control";
+import React, { useRef } from "react";
+import { z } from "zod";
 import {
   Link,
   useFetcher,
@@ -9,22 +9,26 @@ import {
   useNavigation,
   useSearchParams,
   type ActionFunction,
-  type LoaderFunctionArgs
-} from 'react-router';
-import { fetchUserInfo, updateUserAvatar, updateUserInfo } from '~/repositories/user.repository';
-import type { User } from '~/types/user';
-import { sendForgetPasswordRequest } from '~/repositories/auth.repository';
-import { prefetchImage } from '~/utils/image-proxy';
-import { DataCenter } from '~/provider/datacenter';
+  type LoaderFunctionArgs,
+} from "react-router";
+import {
+  fetchUserInfo,
+  updateUserAvatar,
+  updateUserInfo,
+} from "~/repositories/user.repository";
+import type { User } from "~/types/user";
+import { sendForgetPasswordRequest } from "~/repositories/auth.repository";
+import { prefetchImage } from "~/utils/image-proxy";
+import { DataCenter } from "~/provider/datacenter";
 
 const profileSchema = z.object({
   name: z.string().min(2, "ชื่อคุณต้องยาวกว่า 2 ตัวอักษร"),
   email: z.string().email("กรุณากรอกอีเมลที่ถูกรูปแบบ"),
-  phoneNumber: z.string().regex(/^[0-9]{10}$/, "หมายเลขโทรศัพท์ต้องมี 10 ตัว"),
-  image_url: z.string().min(3, "url ต้องยาวอย่างน้อย 3 ตัว")
-})
+  phoneNumber: z.string().min(10, "หมายเลขโทรศัพท์ต้องมี 10 ตัว"),
+  image_url: z.string().min(3, "url ต้องยาวอย่างน้อย 3 ตัว"),
+});
 
-type ProfileFormData = z.infer<typeof profileSchema>
+type ProfileFormData = z.infer<typeof profileSchema>;
 
 interface InputFieldProps {
   name: string;
@@ -36,11 +40,22 @@ interface InputFieldProps {
   readonly?: boolean;
 }
 
-function InputField({ name, type, example, id, defaultValue, error, readonly }: InputFieldProps) {
+function InputField({
+  name,
+  type,
+  example,
+  id,
+  defaultValue,
+  error,
+  readonly,
+}: InputFieldProps) {
   return (
     <div className="flex flex-col w-full">
       <label htmlFor={id} className="text-sm font-normal leading-normal">
-        {name} {readonly && <span className="text-gray-500 text-xs">(ไม่สามารถแก้ไขได้)</span>}
+        {name}{" "}
+        {readonly && (
+          <span className="text-gray-500 text-xs">(ไม่สามารถแก้ไขได้)</span>
+        )}
       </label>
       <input
         id={id}
@@ -49,8 +64,10 @@ function InputField({ name, type, example, id, defaultValue, error, readonly }: 
         placeholder={example}
         defaultValue={defaultValue}
         readOnly={readonly}
-        className={`border ${error ? 'border-red-500' : 'border-gray-500'} ${
-          readonly ? 'bg-gray-200 cursor-not-allowed opacity-80 text-gray-500' : 'bg-gray-300/0'
+        className={`border ${error ? "border-red-500" : "border-gray-500"} ${
+          readonly
+            ? "bg-gray-200 cursor-not-allowed opacity-80 text-gray-500"
+            : "bg-gray-300/0"
         } rounded-lg p-2 w-full`}
       />
       {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
@@ -58,22 +75,31 @@ function InputField({ name, type, example, id, defaultValue, error, readonly }: 
   );
 }
 
-type ButtonVariant = 'primary' | 'secondary';
+type ButtonVariant = "primary" | "secondary";
 
 interface ButtonProps {
   children: React.ReactNode;
   variant?: ButtonVariant;
   icon?: React.ReactNode;
-  type?: 'button' | 'submit';
+  type?: "button" | "submit";
   name?: string;
   value?: string;
 }
 
-function Button({ children, variant = "primary", icon = null, type = "button", name, value }: ButtonProps) {
-  const baseStyles = "flex justify-center items-center py-2 rounded-xl w-full font-bold transition-all duration-200 ease-in-out";
+function Button({
+  children,
+  variant = "primary",
+  icon = null,
+  type = "button",
+  name,
+  value,
+}: ButtonProps) {
+  const baseStyles =
+    "flex justify-center items-center py-2 rounded-xl w-full font-bold transition-all duration-200 ease-in-out";
   const variantStyles: Record<ButtonVariant, string> = {
     primary: "bg-black text-white hover:bg-gray-800 hover:shadow-md",
-    secondary: "bg-white text-black border border-gray-300 hover:bg-gray-100 hover:shadow-md"
+    secondary:
+      "bg-white text-black border border-gray-300 hover:bg-gray-100 hover:shadow-md",
   };
 
   return (
@@ -103,87 +129,114 @@ interface ActionMessage {
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
-  const toast = url.searchParams.get('toast');
-  const toastType = url.searchParams.get('toastType');
-  
-  const user: User = await fetchUserInfo(102, request);
-  const image_url  = await prefetchImage(user.data.image_url);
+  const toast = url.searchParams.get("toast");
+  const toastType = url.searchParams.get("toastType");
+
+  const user_id = parseInt(DataCenter.getData("user_id_info") as string);
+  const user: User = await fetchUserInfo(user_id, request);
+  const image_url = await prefetchImage(user.data.image_url);
   const profileData: ProfileFormData = {
     name: user.data.name,
     email: user.data.email,
     phoneNumber: user.data.phone,
-    image_url: image_url
+    image_url: image_url,
   };
 
-  return { 
+  return {
     user: profileData,
     toast: toast || null,
-    toastType: toastType || 'success'
+    toastType: toastType || "success",
   };
 }
 
-export const action: ActionFunction = async({ request }) => {
+export const action: ActionFunction = async ({ request }) => {
   const form = await request.formData();
   const intent = form.get("intent") as string;
   const redirectUrl = new URL(request.url);
-  
-  if(intent === "updateProfile"){
+  const user_id = parseInt(DataCenter.getData("user_id_info") as string);
+
+  if (intent === "updateProfile") {
     const name = form.get("name") as string;
     const email = form.get("email") as string;
     const phoneNumber = form.get("phoneNumber") as string;
     const image_url = form.get("image_url") as string;
-    
-    const payload = profileSchema.safeParse({name, email, phoneNumber, image_url});
-    
-    if(!payload.success){
-      return ({
+
+    const payload = profileSchema.safeParse({
+      name,
+      email,
+      phoneNumber,
+      image_url,
+    });
+
+    if (!payload.success) {
+      return {
         success: false,
         errors: payload.error.flatten().fieldErrors,
-        values: {name, email, phoneNumber, image_url}
-      });
+        values: { name, email, phoneNumber, image_url },
+      };
     }
 
-    try{
-      await updateUserInfo(request, 102, {name:name, phone:phoneNumber});
-      redirectUrl.searchParams.set('toast', 'อัพเดทข้อมูลในโปรไฟล์คุณเรียบร้อยแล้วครับ');
-      redirectUrl.searchParams.set('toastType', 'success');
+    try {
+      await updateUserInfo(request, user_id, {
+        name: name,
+        phone: phoneNumber,
+      });
+      redirectUrl.searchParams.set(
+        "toast",
+        "อัพเดทข้อมูลในโปรไฟล์คุณเรียบร้อยแล้วครับ"
+      );
+      redirectUrl.searchParams.set("toastType", "success");
       return Response.redirect(redirectUrl.toString());
-    } catch(e){
-      return ({
+    } catch (e) {
+      return {
         success: false,
         message: "Can't update user profile",
-        values: {name, email, phoneNumber, image_url}
-      });
+        values: { name, email, phoneNumber, image_url },
+      };
     }
-  } else if (intent === "changePassword"){
+  } else if (intent === "changePassword") {
     const email = form.get("email") as string;
 
-    const success = await sendForgetPasswordRequest(request, email)
+    const success = await sendForgetPasswordRequest(request, email);
 
-    if(success){
-      redirectUrl.searchParams.set('toast', 'ส่งลิ้งค์อัพเดทรหัสผ่านไปทางอีเมลเรียบร้อยแล้วครับ');
-      redirectUrl.searchParams.set('toastType', 'success');
-    }else{
-      redirectUrl.searchParams.set('toast', 'ส่งลิ้งค์อัพเดทรหัสผ่านไม่สำเร็จ');
-      redirectUrl.searchParams.set('toastType', 'error');
+    if (success) {
+      redirectUrl.searchParams.set(
+        "toast",
+        "ส่งลิ้งค์อัพเดทรหัสผ่านไปทางอีเมลเรียบร้อยแล้วครับ"
+      );
+      redirectUrl.searchParams.set("toastType", "success");
+    } else {
+      redirectUrl.searchParams.set("toast", "ส่งลิ้งค์อัพเดทรหัสผ่านไม่สำเร็จ");
+      redirectUrl.searchParams.set("toastType", "error");
     }
 
     return Response.redirect(redirectUrl.toString());
-
-  } else if (intent === "updateImage"){
+  } else if (intent === "updateImage") {
     const imageFile = form.get("file") as File | null;
 
-    if(imageFile){
-      try{
-        await updateUserAvatar(request, 102, imageFile);
-        
-        redirectUrl.searchParams.set('toast', 'อัพเดทรูปโปรไฟล์ของคุณเรียบร้อบแล้วครับ');
-        redirectUrl.searchParams.set('toastType', 'success');
+    if (imageFile) {
+      try {
+        await updateUserAvatar(request, user_id, imageFile);
 
-        return Response.redirect(redirectUrl.toString());
-      } catch(e){
-        redirectUrl.searchParams.set('toast', 'อัพเดทรูปโปรไฟล์ไม่สำเร็จ');
-        redirectUrl.searchParams.set('toastType', 'error');
+        redirectUrl.searchParams.set(
+          "toast",
+          "อัพเดทรูปโปรไฟล์ของคุณเรียบร้อบแล้วครับ"
+        );
+        redirectUrl.searchParams.set("toastType", "success");
+
+        try {
+          const response: any = await fetchUserInfo(user_id, request);
+          DataCenter.addData("user_image_info", response.image_url);
+          return Response.redirect(redirectUrl.toString());
+        } catch (e) {
+          redirectUrl.searchParams.set("toast", "ดึงข้อมูลผู้ใช้ไม่สำเร็จ");
+          redirectUrl.searchParams.set("toastType", "error");
+
+          return Response.redirect(redirectUrl.toString());
+        }
+      } catch (e) {
+        redirectUrl.searchParams.set("toast", "อัพเดทรูปโปรไฟล์ไม่สำเร็จ");
+        redirectUrl.searchParams.set("toastType", "error");
 
         return Response.redirect(redirectUrl.toString());
       }
@@ -191,40 +244,43 @@ export const action: ActionFunction = async({ request }) => {
   }
 
   return null;
-}
+};
 
 function ProfileEditPage() {
-  const { user, toast, toastType } = useLoaderData<{ 
+  const { user, toast, toastType } = useLoaderData<{
     user: ProfileFormData;
     toast: string | null;
-    toastType: 'success' | 'error';
+    toastType: "success" | "error";
   }>();
   const imageUploadFetcher = useFetcher();
   const profileFetcher = useFetcher<ActionMessage>();
   const nav = useNavigation();
   const [searchParams, setSearchParams] = useSearchParams();
-  
-  const isImageUploading = 
-    (imageUploadFetcher.state === 'submitting' && 
-     imageUploadFetcher.formData?.get('intent') === 'updateImage');
-  
-  const isSubmitting = nav.state === 'submitting';
-  
+
+  const isImageUploading =
+    imageUploadFetcher.state === "submitting" &&
+    imageUploadFetcher.formData?.get("intent") === "updateImage";
+
+  const isSubmitting = nav.state === "submitting";
+
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
-    
+
     const formData = new FormData();
     formData.append("file", file);
     formData.append("intent", "updateImage");
 
-    imageUploadFetcher.submit(formData, { method: "post", encType: "multipart/form-data" });
+    imageUploadFetcher.submit(formData, {
+      method: "post",
+      encType: "multipart/form-data",
+    });
   };
-  
+
   if (toast) {
     setTimeout(() => {
-      searchParams.delete('toast');
-      searchParams.delete('toastType');
+      searchParams.delete("toast");
+      searchParams.delete("toastType");
       setSearchParams(searchParams);
     }, 3000);
   }
@@ -234,18 +290,28 @@ function ProfileEditPage() {
       <nav className="bg-primary-dark h-[19.6vh] flex justify-center">
         <h1 className="font-bold text-lg text-white mt-4">Edit Profile</h1>
         <Link to={"/profile"}>
-          <ArrowLeft className="absolute left-4 top-9 transform -translate-y-1/2 text-white hover:scale-110 transition-transform cursor-pointer" width={30} height={30} />
+          <ArrowLeft
+            className="absolute left-4 top-9 transform -translate-y-1/2 text-white hover:scale-110 transition-transform cursor-pointer"
+            width={30}
+            height={30}
+          />
         </Link>
       </nav>
       <div className="h-auto flex flex-col items-center pb-8">
         <div className="relative">
-          <div 
+          <div
             className="rounded-full w-40 h-40 -mt-20 border-4 border-white mb-8 relative overflow-hidden cursor-pointer"
-            onClick={() => !isImageUploading && document.getElementById("fileInput")?.click()}
+            onClick={() =>
+              !isImageUploading && document.getElementById("fileInput")?.click()
+            }
           >
-            <img 
-              src={profileFetcher.data?.values?.image_url || user?.image_url || "/default.png"}
-              alt="Profile" 
+            <img
+              src={
+                profileFetcher.data?.values?.image_url ||
+                user?.image_url ||
+                "/default.png"
+              }
+              alt="Profile"
               className="w-full h-full object-cover"
             />
 
@@ -259,21 +325,20 @@ function ProfileEditPage() {
               </div>
             )}
           </div>
-          <div className='absolute right-3 bottom-7 bg-white text-black rounded-full p-2 border-[1px] border-gray-200'>
+          <div className="absolute right-3 bottom-7 bg-white text-black rounded-full p-2 border-[1px] border-gray-200">
             <Pencil size={28} />
           </div>
-          
 
-          <input 
-            type="file" 
-            id="fileInput" 
-            className="hidden" 
-            accept="image/*" 
+          <input
+            type="file"
+            id="fileInput"
+            className="hidden"
+            accept="image/*"
             onChange={handleFileChange}
             disabled={isImageUploading}
           />
         </div>
-        
+
         <profileFetcher.Form method="post" className="w-full">
           <input type="hidden" name="image_url" value={user?.image_url || ""} />
           <div className="w-full px-4 md:px-16">
@@ -284,7 +349,9 @@ function ProfileEditPage() {
                 example="bigdog@gmail.com"
                 id="email"
                 readonly={true}
-                defaultValue={profileFetcher.data?.values?.email || user?.email || "" }
+                defaultValue={
+                  profileFetcher.data?.values?.email || user?.email || ""
+                }
                 error={profileFetcher.data?.errors?.email?.[0]}
               />
               <InputField
@@ -292,7 +359,9 @@ function ProfileEditPage() {
                 type="text"
                 example="YoungJ"
                 id="name"
-                defaultValue={profileFetcher.data?.values?.name || user?.name || ""}
+                defaultValue={
+                  profileFetcher.data?.values?.name || user?.name || ""
+                }
                 error={profileFetcher.data?.errors?.name?.[0]}
               />
               <InputField
@@ -300,7 +369,11 @@ function ProfileEditPage() {
                 type="tel"
                 example="0922720521"
                 id="phoneNumber"
-                defaultValue={profileFetcher.data?.values?.phoneNumber || user?.phoneNumber || ""}
+                defaultValue={
+                  profileFetcher.data?.values?.phoneNumber ||
+                  user?.phoneNumber ||
+                  ""
+                }
                 error={profileFetcher.data?.errors?.phoneNumber?.[0]}
               />
             </GapController>
@@ -330,10 +403,15 @@ function ProfileEditPage() {
       </div>
 
       {toast && (
-        <div className={`fixed top-4 right-4 flex items-center p-4 rounded-lg shadow-lg ${
-          toastType === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
-        } animate-fade-out`} style={{ animation: 'fadeOut 3s forwards' }}>
-          {toastType === 'success' ? (
+        <div
+          className={`fixed top-4 right-4 flex items-center p-4 rounded-lg shadow-lg ${
+            toastType === "success"
+              ? "bg-green-500 text-white"
+              : "bg-red-500 text-white"
+          } animate-fade-out`}
+          style={{ animation: "fadeOut 3s forwards" }}
+        >
+          {toastType === "success" ? (
             <div className="mr-2">✓</div>
           ) : (
             <div className="mr-2">✗</div>
@@ -341,7 +419,7 @@ function ProfileEditPage() {
           <span>{toast}</span>
         </div>
       )}
-      
+
       <style>{`
         @keyframes fadeOut {
           0% { opacity: 1; }
