@@ -94,6 +94,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
     DataCenter.addData("user_image_info", user.image_url as string);
     DataCenter.addData("user_name_info", user.name as string);
+    DataCenter.addData("user_id_info", user.id as string);
 
     return redirect("/homepage", {
       headers: {
