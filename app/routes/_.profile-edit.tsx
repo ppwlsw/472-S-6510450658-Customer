@@ -105,7 +105,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const toast = url.searchParams.get('toast');
   const toastType = url.searchParams.get('toastType');
   
-  const user: User = await fetchUserInfo(108, request);
+  const user: User = await fetchUserInfo(102, request);
   const image_url  = await prefetchImage(user.data.image_url);
   const profileData: ProfileFormData = {
     name: user.data.name,
@@ -143,7 +143,7 @@ export const action: ActionFunction = async({ request }) => {
     }
 
     try{
-      await updateUserInfo(request, 108, {name:name, phone:phoneNumber});
+      await updateUserInfo(request, 102, {name:name, phone:phoneNumber});
       redirectUrl.searchParams.set('toast', 'อัพเดทข้อมูลในโปรไฟล์คุณเรียบร้อยแล้วครับ');
       redirectUrl.searchParams.set('toastType', 'success');
       return Response.redirect(redirectUrl.toString());
@@ -174,7 +174,7 @@ export const action: ActionFunction = async({ request }) => {
 
     if(imageFile){
       try{
-        await updateUserAvatar(request, 108, imageFile);
+        await updateUserAvatar(request, 102, imageFile);
         
         redirectUrl.searchParams.set('toast', 'อัพเดทรูปโปรไฟล์ของคุณเรียบร้อบแล้วครับ');
         redirectUrl.searchParams.set('toastType', 'success');
