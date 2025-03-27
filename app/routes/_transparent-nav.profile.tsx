@@ -36,12 +36,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
   ]);
 
   DataCenter.addData("user_image_info", userData.data.image_url)
-  userData.data.image_url = userData.data.image_url;
-
-
-  for (const queue of queuesData.data) {
-    queue.shop_image_url = queue.shop_image_url;
-  }
 
   return {
     user: userData,

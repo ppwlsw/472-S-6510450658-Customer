@@ -43,7 +43,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   try {
     const data: Queue[] = await getShopQueueInfoByID(request, shopID);
     const shopInfo: Shop = await getShopsInfoByID(request, shopID);
-    shopInfo.image_url = shopInfo.image_url; 
 
     const items = await getShopRecommendItems(request, shopID);
 

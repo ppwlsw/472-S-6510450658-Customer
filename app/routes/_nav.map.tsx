@@ -31,17 +31,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
     );
     const nearby_shops = await response.json();
 
-    const converted = await Promise.all(
-      nearby_shops.data.map(async (shop: any) => {
-        const image_url = shop.image_url;
-        shop.image_url = image_url;
-
-        return shop;
-      })
-    );
-
-    console.log("[CONVERTED] shops : ", converted);
-
     return {
       nearby_shops,
       latitude,
