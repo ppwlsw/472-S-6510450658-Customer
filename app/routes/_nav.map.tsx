@@ -1,6 +1,57 @@
 import { useEffect, useState } from "react";
-import MarkerPopup,{ type MarkerData } from "~/components/marker_popup";
+import MarkerPopup, { type MarkerData } from "~/components/marker_popup";
 import { Loader2 } from "lucide-react";
+import { useLoaderData, type LoaderFunctionArgs } from "react-router";
+import { useAuth } from "~/utils/auth";
+import { prefetchImage } from "~/utils/image-proxy";
+
+export async function loader({ request }: LoaderFunctionArgs) {
+  const { getCookie } = useAuth;
+  const data = await getCookie({ request });
+  const token = data?.token;
+
+  const url = new URL(request.url);
+
+  const latitude = url.searchParams.get("latitude");
+  const longitude = url.searchParams.get("longitude");
+
+  if (latitude && longitude) {
+    console.log("Latitude:", latitude, "Longitude:", longitude);
+    console.log(
+      `PATH : ${process.env.API_BASE_URL}/shops/location/nearby?latitude=${latitude}&longitude=${longitude}`
+    );
+    const response = await fetch(
+      `${process.env.API_BASE_URL}/shops/location/nearby?latitude=${latitude}&longitude=${longitude}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Access-Control-Allow-Origin": "*",
+        },
+      }
+    );
+    const nearby_shops = await response.json();
+
+    const converted = await Promise.all(
+      nearby_shops.data.map(async (shop: any) => {
+        const image_url = await prefetchImage(shop.image_url);
+        shop.image_url = image_url;
+
+        return shop;
+      })
+    );
+
+    console.log("[CONVERTED] shops : ", converted);
+
+    return {
+      nearby_shops,
+      latitude,
+      longitude,
+    };
+  } else {
+    return {};
+  }
+}
 
 function MapPage() {
   const [selectedPlace, setSelectedPlace] = useState<MarkerData | null>(null);
@@ -9,14 +60,42 @@ function MapPage() {
   const zoomLevel = 15;
 
   useEffect(() => {
+    if (typeof window !== "undefined") {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          const params = new URLSearchParams(window.location.search);
+
+          if (!params.has("latitude") || !params.has("longitude")) {
+            params.set("latitude", latitude.toString());
+            params.set("longitude", longitude.toString());
+            window.location.search = params.toString(); // Reload with params
+          }
+        },
+        (error) => {
+          console.error("Geolocation error:", error);
+          setIsLoading(false);
+        },
+        { maximumAge: 60, timeout: 5000, enableHighAccuracy: true }
+      );
+    }
+  }, []);
+
+  const { nearby_shops, latitude, longitude } = useLoaderData<typeof loader>();
+
+  useEffect(() => {
     if (typeof document !== "undefined") {
       (async () => {
         try {
           const L = await import("leaflet");
           setIsLoading(true);
-
-          let map = L.map("map").setView([13.84791, 100.57132], zoomLevel);
-
+          let map = L.map("map").setView(
+            [
+              latitude ? parseFloat(latitude) : 13.84791, // Default latitude
+              longitude ? parseFloat(longitude) : 100.57132, // Default longitude
+            ],
+            zoomLevel
+          );
           L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
             attribution:
               '<a href="https://www.openstreetmap.org/#map=16/13.84791/100.57132"></a>',
@@ -24,12 +103,11 @@ function MapPage() {
 
           navigator.geolocation.getCurrentPosition(
             async (position) => {
-              console.log(position.coords);
               let { latitude, longitude } = position.coords;
               let userLocation = L.latLng(latitude, longitude);
 
               var customUsermarker = new L.Icon({
-                iconUrl: "././public/here-icon.png",
+                iconUrl: "/here-icon.png",
 
                 iconSize: [46, 46],
                 iconAnchor: [12, 41],
@@ -38,26 +116,9 @@ function MapPage() {
               const userMarker = L.marker(userLocation, {
                 icon: customUsermarker,
               }).addTo(map);
-              userMarker.on("click", () =>
-                console.log("User Location Clicked")
-              );
 
               try {
-                const response = await fetch(
-                  `http://localhost:80/api/users/nearby-shops?latitude=${latitude}&longitude=${longitude}`,
-                  {
-                    headers: {
-                      "Access-Control-Allow-Origin": "*",
-                      Authorization:
-                        "Bearer 1|u3WNYITEtW5wq1ixUaaJRp6CYPKjOCIxj5BDEPK1796b94b6",
-                    },
-                  }
-                );
-                if (!response.ok)
-                  throw new Error("Failed to fetch nearby shops");
-
-                const responseData = await response.json();
-                const shops = responseData.data.map((shop: any) => ({
+                const shops = nearby_shops.data.map((shop: any) => ({
                   id: shop.id,
                   title: shop.name,
                   address: shop.address,
@@ -70,13 +131,11 @@ function MapPage() {
                   is_open: shop.is_open,
                 }));
 
-                console.log(shops);
-
                 setPlaces(shops);
 
                 shops.forEach((place: any) => {
                   const shopMarker = new L.Icon({
-                    iconUrl: place["imgUrl"] ?? "../../def-res-icon.png",
+                    iconUrl: "/def-res-icon.png",
                     shadowSize: [36, 36],
                     iconSize: [48, 48],
                   });
