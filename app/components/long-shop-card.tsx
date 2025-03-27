@@ -14,14 +14,18 @@ function LongShopCard({
   img_url, 
   name, 
   distance, 
-  total_queue, 
   shop_id, 
   is_open 
 }: LongShopCardProps) {
   const navigate = useNavigate();
+  const distanceNumber = parseFloat(distance.split(" ")[0]);
+  const isLocked = !is_open || distanceNumber > 2;
+  const lockMessage = !is_open 
+    ? "ปิดให้บริการ ไม่สามารถจองคิวได้" 
+    : "คุณอยู่ไกลเกินไป ไม่สามารถจองคิวได้";
 
   const handleClick = () => {
-    if (is_open) {
+    if (!isLocked) {
       navigate(`/shop/${shop_id}`);
     }
   };
@@ -38,7 +42,7 @@ function LongShopCard({
         rounded-xl 
         transition-all 
         pb-4
-        ${is_open 
+        ${!isLocked 
           ? 'hover:shadow-xl cursor-pointer' 
           : 'opacity-50 cursor-not-allowed'}
       `}
@@ -54,30 +58,26 @@ function LongShopCard({
             h-48 
             rounded-t-xl 
             aspect-[16/9]
-            ${!is_open ? 'brightness-50' : ''}
+            ${isLocked ? 'brightness-50' : ''}
           `}
         />
-        {!is_open && (
+        {isLocked && (
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
             <Lock className="text-white" size={48} />
           </div>
         )}
       </div>
       <div className="w-full flex flex-row justify-between items-center px-2.5">
-        <p className={`font-semibold text-lg ${!is_open ? 'text-gray-500' : ''}`}>
+        <p className={`font-semibold text-lg ${isLocked ? 'text-gray-500' : ''}`}>
           {name}
         </p>
-        <div className="flex flex-row items-center text-black gap-1">
-          <Hourglass width={16} height={16} />
-          <p className="text-sm">คิวตอนนี้: {total_queue}</p>
-        </div>
       </div>
-      <p className={`w-full text-sm px-2.5 ${!is_open ? 'text-gray-400' : 'text-[#878787]'}`}>
-        ระยะห่าง: {distance} km
+      <p className={`w-full text-sm px-2.5 ${isLocked ? 'text-gray-400' : 'text-[#878787]'}`}>
+        ระยะห่าง: {distance}
       </p>
-      {!is_open && (
+      {isLocked && (
         <div className="w-full px-2.5 mt-1">
-          <p className="text-sm text-red-500 font-medium">ปิดให้บริการ</p>
+          <p className="text-sm text-red-500 font-medium">{lockMessage}</p>
         </div>
       )}
     </div>

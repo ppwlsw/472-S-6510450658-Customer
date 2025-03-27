@@ -4,6 +4,7 @@ export interface QueueResponse {
   queue_number: string;
   shop_description: string;
   queue_tag: string;
+  shop_address: string;
 }
 
 export interface QueueInformation {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Hourglass, Loader2, MapPin, Phone } from "lucide-react";
+import { Hourglass, Loader2, MapPin, Phone, TriangleAlert  } from "lucide-react";
 import GapController from "~/components/gap-control";
 import QueueCard from "~/components/queue-card";
 import XAxisSlide from "~/components/x-axis-slide";
@@ -21,6 +21,7 @@ import {
 } from "~/repositories/shop.repository";
 import type { Queue } from "~/types/queue";
 import { prefetchImage } from "~/utils/image-proxy";
+import { calculateDistance } from "~/utils/location";
 
 interface ActionMessage {
   success: boolean;
@@ -44,7 +45,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     const data: Queue[] = await getShopQueueInfoByID(request, shopID);
     const shopInfo: Shop = await getShopsInfoByID(request, shopID);
     shopInfo.image_url = await prefetchImage(shopInfo.image_url || "");
-    console.log(shopInfo.image_uri);
 
     const items = await getShopRecommendItems(request, shopID);
 
@@ -76,8 +76,13 @@ function ShopPage() {
   }>();
   const queues = loaderData.data || [];
   const shop = loaderData.shopInfo;
+  const latitude = 13.8479786;
+  const longitude = 100.5697013;
 
   if (!shop) return redirect("/homepage");
+
+  const IS_OPEN = shop.is_open
+  const TOO_FAR = calculateDistance(latitude, longitude, shop.latitude, shop.longitude) > 2 // more that 2 km
 
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [selectedQueue, setSelectedQueue] = useState<number | null>(null);
@@ -163,7 +168,7 @@ function ShopPage() {
                     {queues.map((queue, index) => (
                       <QueueCard
                         key={queue.id}
-                        isAvailable={queue.is_available}
+                        isAvailable={queue.is_available && IS_OPEN && !TOO_FAR}
                         onClick={() => handleQueueClick(index, queue)}
                         isSelected={selectedQueue === index}
                         name={queue.name}
@@ -186,24 +191,33 @@ function ShopPage() {
             )}
           </div>
 
-          {selectedIndex === 0 && queue && (
-            <fetcher.Form method="post" className="w-full">
-              <input type="hidden" name="queue" value={JSON.stringify(queue)} />
-              {fetcher.state === "submitting" ? (
-                <div className="flex justify-center py-4">
-                  <Loader2 className="animate-spin h-8 w-8 text-blue-600" />
-                </div>
-              ) : (
-                <button
-                  className="bg-primary-dark rounded-xl w-full text-white py-[15px]"
-                  id="bookQueue"
-                  name="bookQueue"
-                  type="submit"
-                >
-                  จองเลย
-                </button>
-              )}
-            </fetcher.Form>
+          {IS_OPEN && !TOO_FAR ? (
+            selectedIndex === 0 && queue ? (
+              <fetcher.Form method="post" className="w-full">
+                <input type="hidden" name="queue" value={JSON.stringify(queue)} />
+                {fetcher?.state === "submitting" ? (
+                  <div className="flex justify-center py-4">
+                    <Loader2 className="animate-spin h-8 w-8 text-blue-600" />
+                  </div>
+                ) : (
+                  <button
+                    className="bg-primary-dark rounded-xl w-full text-white py-[15px]"
+                    id="bookQueue"
+                    name="bookQueue"
+                    type="submit"
+                  >
+                    จองเลย
+                  </button>
+                )}
+              </fetcher.Form>
+            ) : null
+          ) : (
+            selectedIndex === 0? (
+              <div className={`flex flex-row items-center justify-center bg-red-600 text-white text-center py-4 rounded-xl font-bold text-lg w-full py-[15px]`}>
+                <TriangleAlert className="mr-2"></TriangleAlert>
+                {IS_OPEN ? "คุณอยู่ไกลเกินไป ไม่สามารถจองคิวได้" : "ร้านปิด ไม่สามารถจองคิวได้"}
+              </div>
+            ):(<></>)
           )}
 
           <div

@@ -199,7 +199,7 @@ export default function QueuePage() {
         <div className="mt-10 text-white ml-4 mb-36">
           <h1 className="text-2xl">{info?.data.shop_name}</h1>
           <p className="ml-2 text-l">
-            โครงการ Box Space ห้องเลขที่ E3 ชั่้นที่ 1
+            {info.data.shop_address}
           </p>
         </div>
         <div className="z-10 -mb-36 flex flex-row justify-center">
