@@ -39,13 +39,45 @@ export async function sendBookQueueRequest(request: Request, queue: Queue) {
     }
 }
 
-export async function searchShopsRequest(request:Request, key:string, page:number) {
-    try{
-        const axios = useAxiosInstance(request, {raw:true})
-        const response = await axios.get<SearchShopsResponse>(`shops/search?key=${key}&page=${page}`)
+export async function searchShopsRequest(
+    request: Request, 
+    key: string, 
+    page: number, 
+    options: {
+      sortByDistance?: boolean;
+      filterLowQueue?: boolean;
+      filterOpenOnly?: boolean;
+      latitude?: number;
+      longitude?: number;
+    } = {}
+  ) {
+    try {
+      const axios = useAxiosInstance(request, { raw: true });
+      const params = new URLSearchParams({
+        key,
+        page: page.toString(),
+      });
 
-        return response.data
-    }catch(e){
-       throw e
+      if (options.sortByDistance !== undefined) {
+        params.append('sortByDistance', options.sortByDistance? 'true' : 'false');
+      }
+      if (options.filterLowQueue !== undefined) {
+        params.append('filterLowQueue', options.filterLowQueue? 'true' : 'false');
+      }
+      if (options.filterOpenOnly !== undefined) {
+        params.append('filterOpenOnly', options.filterOpenOnly? 'true' : 'false');
+      }
+      if (options.latitude !== undefined) {
+        params.append('latitude', options.latitude.toString());
+      }
+      if (options.longitude !== undefined) {
+        params.append('longitude', options.longitude.toString());
+      }
+  
+      const response = await axios.get<SearchShopsResponse>(`shops/search/f?${params.toString()}`);
+      console.log(response.data)
+      return response.data;
+    } catch (e) {
+      throw e;
     }
-}  
+  }

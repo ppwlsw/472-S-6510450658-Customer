@@ -15,6 +15,7 @@ import { fetchUserInfo, updateUserAvatar, updateUserInfo } from '~/repositories/
 import type { User } from '~/types/user';
 import { sendForgetPasswordRequest } from '~/repositories/auth.repository';
 import { prefetchImage } from '~/utils/image-proxy';
+import { DataCenter } from '~/provider/datacenter';
 
 const profileSchema = z.object({
   name: z.string().min(2, "ชื่อคุณต้องยาวกว่า 2 ตัวอักษร"),

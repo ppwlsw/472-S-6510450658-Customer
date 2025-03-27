@@ -1,15 +1,16 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Hourglass, MapPin } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import { prefetchImage } from '~/utils/image-proxy';
 
 interface ShopCardProps {
   shop_id: number;
-  img_url: string; // This will be replaced asynchronously
+  img_url: string; 
   name: string;
   distance: string;
   total_queue?: number;
   description?: string;
+  is_open?: boolean;
 }
 
 const SearchShopCard = ({
@@ -19,17 +20,20 @@ const SearchShopCard = ({
   distance, 
   total_queue,
   description,
+  is_open = true,
 }: ShopCardProps) => {
   const navigate = useNavigate();
 
   const handleClick = () => {
-    navigate(`/shop/${shop_id}`);
+    if (is_open) {
+      navigate(`/shop/${shop_id}`);
+    }
   };
 
   return (
     <div 
       onClick={handleClick} 
-      className="flex flex-col p-4 border rounded-lg hover:shadow-lg transition-all cursor-pointer w-full md:w-[95%] mx-auto"
+      className={`flex flex-col p-4 border rounded-lg hover:shadow-lg transition-all cursor-pointer w-full md:w-[95%] mx-auto ${!is_open ? 'opacity-50 pointer-events-none' : ''}`}
     >
       <div className="flex flex-row space-x-4 w-full">
         <div className="w-1/3 min-w-[120px] max-w-[150px]">
@@ -60,8 +64,11 @@ const SearchShopCard = ({
                     <Hourglass size={16} className="text-gray-500 mr-1" />
                     <span className="text-sm">Queue: {total_queue}</span>
                 </div>
-                )}
+              )}
             </div>
+            {!is_open && (
+              <div className="text-red-500 text-sm mt-2">ปิดให้บริการ</div>
+            )}
           </div>
         </div>
       </div>
