@@ -2,6 +2,7 @@ interface QueueCardProps {
     queue: {
         shop_name: string;
         created_at: string;
+        shop_image_url: string;
 
         // Other queue properties can be added here
     }
@@ -17,7 +18,7 @@ export default function QueueCard({ queue }: QueueCardProps) {
                 <div className="rounded-full w-16 h-16 overflow-hidden flex-shrink-0 shadow-sm">
                     <img
                         className="w-full h-full object-cover"
-                        src="/teenoi.png"
+                        src={queue.shop_image_url}
                         alt={queue?.shop_name || "Restaurant"}
                     />
                 </div>
