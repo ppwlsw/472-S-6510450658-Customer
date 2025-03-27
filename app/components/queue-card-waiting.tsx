@@ -32,7 +32,7 @@ export default function QueueCardWaiting({ queue }: QueueCardProps) {
                 <div className="rounded-full w-16 h-16 overflow-hidden flex-shrink-0 shadow border border-gray-100">
                     <img
                         className="w-full h-full object-cover"
-                        src="/teenoi.png"
+                        src={queue.shop_image_url}
                         alt={queue?.shop_name || "Restaurant"}
                     />
                 </div>

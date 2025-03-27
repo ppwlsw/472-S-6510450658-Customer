@@ -23,6 +23,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
     const shops: Shop[] = await getShopsInfo(request);
     const name: string = DataCenter.getData("user_name_info") as string;
     const queueWaitings: QueueWaitings = await fetchQueueWaiting(request);
+    for (const queue of queueWaitings.data) {
+      queue.shop_image_url = await prefetchImage(queue.shop_image_url || "")
+    }
 
     for (const shop of shops) {
       shop.image_url = shop.image_url;
