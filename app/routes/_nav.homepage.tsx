@@ -1,5 +1,4 @@
 import axios from "axios";
-import { div } from "framer-motion/m";
 import { useEffect, useState } from "react";
 import { redirect, useFetcher, useLoaderData, type LoaderFunctionArgs } from "react-router";
 import CurrentLocationCard from "~/components/current-location-card";
@@ -17,13 +16,19 @@ import { DataCenter } from "~/provider/datacenter";
 import { fetchQueueWaiting } from "~/repositories/queue.repository";
 import { getShopsInfo } from "~/repositories/shop.repository";
 import type { QueueWaitings } from "~/types/queue";
+import { prefetchImage } from "~/utils/image-proxy";
 import { calculateDistance } from "~/utils/location";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   try {
     const shops: Shop[] = await getShopsInfo(request);
-    const name: string = DataCenter.getData("user_name_info") as string
-    const queueWaitings: QueueWaitings = await fetchQueueWaiting(request)
+    const name: string = DataCenter.getData("user_name_info") as string;
+    const queueWaitings: QueueWaitings = await fetchQueueWaiting(request);
+
+    for (const shop of shops) {
+      shop.image_url = await prefetchImage(shop.image_url || "");
+    }
+
     return {
       shops,
       name,
@@ -38,7 +43,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
   }
 }
 
-
 interface LocationData {
   success: boolean;
   lat?: string;
@@ -49,7 +53,6 @@ interface LocationData {
   error?: string;
 }
 
-// Action function
 export async function action({ request }: LoaderFunctionArgs) {
   const formData = await request.formData();
   const queueId = formData.get("queueId") as string;
@@ -60,20 +63,19 @@ export async function action({ request }: LoaderFunctionArgs) {
   } catch (error) {
     return {
       success: false,
-      message: error instanceof Error ? error.message : "An unknown error occurred"
+      message: error instanceof Error ? error.message : "An unknown error occurred",
     };
   }
 }
 
 function HomePage() {
   const { shops, name, queueWaitings } = useLoaderData<typeof loader>();
-  const filteredShops = shops.filter(shop => shop.is_open);
+  const filteredShops = shops;
   const fetcher = useFetcher();
 
   const [userLocation, setUserLocation] = useState<LocationData>({ success: false });
   const [isLoadingLocation, setIsLoadingLocation] = useState(true);
   const [distances, setDistances] = useState<{ [id: string]: string }>({});
-
 
   const handleQueueClick = (queueId: number) => {
     const formData = new FormData();
@@ -81,76 +83,11 @@ function HomePage() {
     fetcher.submit(formData, { method: "post" });
   };
 
-  //   useEffect(() => {
-  //     const getUserLocation = () => {
-  //       if ("geolocation" in navigator) {
-  //         navigator.geolocation.getCurrentPosition(
-  //           async (position) => {
-  //             try {
-  //               const response = await axios.get(
-  //                 `https://nominatim.openstreetmap.org/reverse?format=json&lat=${position.coords.latitude}&lon=${position.coords.longitude}`
-  //               );
-
-  //               const locationData = {
-  //                 success: true,
-  //                 lat: String(position.coords.latitude),
-  //                 lon: String(position.coords.longitude),
-  //                 name: response.data.name,
-  //                 display_name: response.data.display_name,
-  //                 address: response.data.address
-  //               };
-
-  //               setUserLocation(locationData);
-  //               if (filteredShops.length > 0) {
-  //                 const newDistances: {[id: string]: string} = {};
-  //                 const shopsWithDistances = filteredShops.map(shop => {
-  //                   const distance = calculateDistance(
-  //                     position.coords.latitude,
-  //                     position.coords.longitude,
-  //                     shop.latitude,
-  //                     shop.longitude
-  //                   );
-  //                   newDistances[shop.id] = `${distance.toFixed(2)} km`;
-  //                   return { ...shop, distance };
-  //                 });
-
-  //                 shopsWithDistances.sort((a, b) => a.distance - b.distance);
-
-  //                 setDistances(newDistances);
-  //               }
-  //             } catch (error) {
-  //               setUserLocation({
-  //                 success: false,
-  //                 error: "ไม่สามารถดึงข้อมูลตำแหน่งได้"
-  //               });
-  //             } finally {
-  //               setIsLoadingLocation(false);
-  //             }
-  //           },
-  //           (error) => {
-  //             setUserLocation({
-  //               success: false,
-  //               error: "ไม่สามารถดึงข้อมูลตำแหน่งของผู้ใช้ได้"
-  //             });
-  //             setIsLoadingLocation(false);
-  //           }
-  //         );
-  //       } else {
-  //         setUserLocation({
-  //           success: false,
-  //           error: "browser ของคุณไม่รองรับการดึงข้อมูลตำแหน่ง กรุณาเปลี่ยน browser"
-  //         });
-  //         setIsLoadingLocation(false);
-  //       }
-  //     };
-
-  //     getUserLocation();
-  //   }, []);
   useEffect(() => {
     async function a() {
       try {
-        const latitude = 13.8479786
-        const longitude = 100.5697013
+        const latitude = 13.8479786;
+        const longitude = 100.5697013;
         const response = await axios.get(
           `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
         );
@@ -161,7 +98,7 @@ function HomePage() {
           lon: String(longitude),
           name: response.data.name,
           display_name: response.data.display_name,
-          address: response.data.address
+          address: response.data.address,
         };
 
         setUserLocation(locationData);
@@ -185,7 +122,7 @@ function HomePage() {
       } catch (error) {
         setUserLocation({
           success: false,
-          error: "ไม่สามารถดึงข้อมูลตำแหน่งได้"
+          error: "ไม่สามารถดึงข้อมูลตำแหน่งได้",
         });
       } finally {
         setIsLoadingLocation(false);
@@ -193,7 +130,21 @@ function HomePage() {
     }
 
     a();
-  }, [])
+  }, []);
+
+  const sortedShops = filteredShops
+    .map((shop) => ({
+      ...shop,
+      distance: parseFloat(distances[shop.id] || "0"),
+    }))
+    .sort((a, b) => {
+      // Sort by is_open first (true comes before false)
+      if (a.is_open !== b.is_open) {
+        return a.is_open ? -1 : 1;
+      }
+      // If both shops have the same is_open value, then sort by distance
+      return a.distance - b.distance;
+    });
 
   return (
     <div className="overflow-x-hidden mt-[-1px]">
@@ -204,9 +155,6 @@ function HomePage() {
         lon={userLocation.lon}
       />
       <div className="px-5 pb-16">
-        {/* <div className="flex justify-center w-full mb-5">
-          <SearchBar />
-        </div> */}
         <WelcomeUser userName={name}></WelcomeUser>
 
         <fetcher.Form method="post" className="w-full">
@@ -222,33 +170,29 @@ function HomePage() {
                 </div>
               ))}
             </div>
-          ) : (<div></div>
+          ) : (
+            <div></div>
           )}
         </fetcher.Form>
         <GapController gap={55}>
           <div className="w-full mt-3">
             <GapController gap={15}>
               <h1 className="text-[20px] font-bold">ร้านค้าใกล้เคียงยอดนิยม</h1>
-              {filteredShops.length === 0 ? (
+              {sortedShops.length === 0 ? (
                 <EmptyListIcon />
               ) : (
                 <div className="w-full overflow-x-visible">
                   <XAxisSlide>
-                    {filteredShops
-                      .map((shop) => ({
-                        ...shop,
-                        distance: parseFloat(distances[shop.id] || "0"),
-                      }))
-                      .sort((a, b) => a.distance - b.distance)
-                      .map((shop) => (
-                        <NearbyShopCard
-                          key={shop.id}
-                          id={shop.id}
-                          img_url={shop.image_uri || "public/starbuck.png"}
-                          name={shop.name}
-                          distance={`${shop.distance.toFixed(2)} km`}
-                        />
-                      ))}
+                    {sortedShops.map((shop) => (
+                      <NearbyShopCard
+                        key={shop.id}
+                        id={shop.id}
+                        img_url={shop.image_url || "default-image.jpg"}
+                        name={shop.name}
+                        distance={`${shop.distance.toFixed(2)} km`}
+                        is_open={shop.is_open}
+                      />
+                    ))}
                     <EndListIcon />
                   </XAxisSlide>
                 </div>
@@ -258,18 +202,19 @@ function HomePage() {
           <div className="w-full">
             <GapController gap={15}>
               <h1 className="text-[20px] font-bold">ร้านค้าทั้งหมด</h1>
-              {filteredShops.length === 0 ? (
+              {sortedShops.length === 0 ? (
                 <EmptyListIcon />
               ) : (
                 <>
-                  {filteredShops.map((shop, index) => (
+                  {sortedShops.map((shop, index) => (
                     <LongShopCard
                       key={shop.id}
                       shop_id={shop.id}
-                      img_url={shop.image_uri || "public/starbuck.png"}
+                      img_url={shop.image_url || "default-image.jpg"}
                       name={shop.name}
                       distance={distances[shop.id] || ""}
                       total_queue={"30"}
+                      is_open={shop.is_open}
                     />
                   ))}
                   <EndListIcon />

@@ -209,7 +209,9 @@ export default function QueuePage() {
             )} flex justify-center items-center`}
           >
             <h1 className="text-5xl font-bold text-[#242F40]">
-              {isCustomerTurn ? "NICE" : info?.data.queue_number}
+              {isCustomerTurn ?
+                "✔"
+                : info?.data.queue_number}
             </h1>
           </div>
         </div>
@@ -233,7 +235,7 @@ export default function QueuePage() {
 
             {isCustomerTurn ? (
               <div className="text-green-500">
-                ✔
+                Your Queue Now
               </div>
             ) : (
               <button
