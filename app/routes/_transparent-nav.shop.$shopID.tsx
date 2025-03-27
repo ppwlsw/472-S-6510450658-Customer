@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Hourglass, Loader2, MapPin, Phone, TriangleAlert  } from "lucide-react";
+import { Hourglass, Loader2, MapPin, Phone, TriangleAlert } from "lucide-react";
 import GapController from "~/components/gap-control";
 import QueueCard from "~/components/queue-card";
 import XAxisSlide from "~/components/x-axis-slide";
@@ -59,10 +59,7 @@ export async function action({ request }: ActionFunctionArgs) {
   const success = await sendBookQueueRequest(request, queue);
   return success
     ? redirect(`/queue/${queue?.id}`)
-    : {
-        success,
-        message: "จองคิวไม่สำเร็จ กรุณาลองอีกครั้ง",
-      };
+    : redirect(`/queue/${queue?.id}`)
 }
 
 function ShopPage() {
@@ -134,20 +131,18 @@ function ShopPage() {
                 key={index}
                 onClick={() => setSelectedIndex(index)}
                 className={`relative pb-2 text-[16px] transition-all duration-300 
-                                    ${
-                                      selectedIndex === index
-                                        ? "font-semibold text-black"
-                                        : "text-gray-500"
-                                    }`}
+                                    ${selectedIndex === index
+                    ? "font-semibold text-black"
+                    : "text-gray-500"
+                  }`}
               >
                 {tab}
                 <span
                   className={`absolute left-0 bottom-0 w-full h-[2px] bg-black transition-all duration-300
-                                        ${
-                                          selectedIndex === index
-                                            ? "scale-x-100"
-                                            : "scale-x-0"
-                                        }
+                                        ${selectedIndex === index
+                      ? "scale-x-100"
+                      : "scale-x-0"
+                    }
                                     `}
                 />
               </button>
@@ -155,9 +150,8 @@ function ShopPage() {
           </div>
 
           <div
-            className={`transition-all duration-500 ease-in-out transform ${
-              selectedIndex === 0 ? "translate-x-0" : "-translate-x-full"
-            }`}
+            className={`transition-all duration-500 ease-in-out transform ${selectedIndex === 0 ? "translate-x-0" : "-translate-x-full"
+              }`}
           >
             {selectedIndex === 0 && (
               <GapController gap={20}>
@@ -210,18 +204,17 @@ function ShopPage() {
               </fetcher.Form>
             ) : null
           ) : (
-            selectedIndex === 0? (
+            selectedIndex === 0 ? (
               <div className={`flex flex-row items-center justify-center bg-red-600 text-white text-center py-4 rounded-xl font-bold text-lg w-full py-[15px]`}>
                 <TriangleAlert className="mr-2"></TriangleAlert>
                 {IS_OPEN ? "คุณอยู่ไกลเกินไป ไม่สามารถจองคิวได้" : "ร้านปิด ไม่สามารถจองคิวได้"}
               </div>
-            ):(<></>)
+            ) : (<></>)
           )}
 
           <div
-            className={`transition-all duration-500 ease-in-out transform ${
-              selectedIndex === 1 ? "translate-x-0" : "translate-x-full"
-            }`}
+            className={`transition-all duration-500 ease-in-out transform ${selectedIndex === 1 ? "translate-x-0" : "translate-x-full"
+              }`}
           >
             {selectedIndex === 1 && (
               <GapController gap={10}>
@@ -252,7 +245,7 @@ function ShopPage() {
                         className="underline text-[12px] font-bold"
                         href={`tel:${shop.phone}`}
                       >
-                        { shop.phone }
+                        {shop.phone}
                       </a>
                     </GapController>
                   </GapController>
