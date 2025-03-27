@@ -240,10 +240,7 @@ function ShopPage() {
                         className="underline text-[12px] font-bold"
                         href={`tel:${shop.phone}`}
                       >
-                        {`${shop.phone.slice(0, 4)}-${shop.phone.slice(
-                          4,
-                          8
-                        )}-${shop.phone.slice(6)}`}
+                        { shop.phone }
                       </a>
                     </GapController>
                   </GapController>
