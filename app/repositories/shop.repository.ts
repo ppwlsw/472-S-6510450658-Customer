@@ -81,3 +81,16 @@ export async function searchShopsRequest(
       throw e;
     }
   }
+
+  export async function getShopRecommendItems(request: Request, shop_id: string) {
+    try {
+        const axios = useAxiosInstance(request, {raw:true});
+        const response = await axios.get(`/shops/${shop_id}/recommend-items`);
+
+          console.log(response.data.data)
+        return response.data.data;
+    } catch (e) {
+        console.log(e);
+        return [];
+    }
+  }

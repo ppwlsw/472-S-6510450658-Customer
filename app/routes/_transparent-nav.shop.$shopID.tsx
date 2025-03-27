@@ -6,14 +6,33 @@ import GapController from "~/components/gap-control";
 import QueueCard from "~/components/queue-card";
 import XAxisSlide from "~/components/x-axis-slide";
 import MenuCard from "~/components/menu-card";
-import { redirect, useFetcher, useLoaderData, type ActionFunctionArgs, type LoaderFunctionArgs } from "react-router";
-import {getShopQueueInfoByID, getShopsInfoByID, sendBookQueueRequest } from "~/repositories/shop.repository";
+import {
+  redirect,
+  useFetcher,
+  useLoaderData,
+  type ActionFunctionArgs,
+  type LoaderFunctionArgs,
+} from "react-router";
+import {
+  getShopQueueInfoByID,
+  getShopRecommendItems,
+  getShopsInfoByID,
+  sendBookQueueRequest,
+} from "~/repositories/shop.repository";
 import type { Queue } from "~/types/queue";
 import { prefetchImage } from "~/utils/image-proxy";
 
 interface ActionMessage {
   success: boolean;
   message: string;
+}
+
+interface Item {
+  name: string;
+  price: number;
+  image_url: string;
+  quantity: number;
+  is_available: boolean;
 }
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -23,13 +42,15 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   try {
     const data: Queue[] = await getShopQueueInfoByID(request, shopID);
-    const shopInfo: Shop = await getShopsInfoByID(request, shopID)
-    shopInfo.image_url = await prefetchImage(shopInfo.image_url || "")
-    console.log(shopInfo.image_uri)
+    const shopInfo: Shop = await getShopsInfoByID(request, shopID);
+    shopInfo.image_url = await prefetchImage(shopInfo.image_url || "");
+    console.log(shopInfo.image_uri);
 
-    return {data, shopInfo}
+    const items = await getShopRecommendItems(request, shopID);
+
+    return { data, shopInfo, items };
   } catch (e) {
-    return {data:[], shopInfo:null}
+    return { data: [], shopInfo: null };
   }
 }
 
@@ -38,24 +59,29 @@ export async function action({ request }: ActionFunctionArgs) {
   const queue: Queue = JSON.parse(formData.get("queue") as string);
 
   const success = await sendBookQueueRequest(request, queue);
-  return (success) ? redirect(`/queue/${queue?.id}`) : {
-    success,
-    message: "จองคิวไม่สำเร็จ กรุณาลองอีกครั้ง"
-  }
+  return success
+    ? redirect(`/queue/${queue?.id}`)
+    : {
+        success,
+        message: "จองคิวไม่สำเร็จ กรุณาลองอีกครั้ง",
+      };
 }
 
 function ShopPage() {
   const fetcher = useFetcher<ActionMessage>();
-  const loaderData = useLoaderData<{ data: Queue[]; shopInfo: Shop | null }>();
+  const loaderData = useLoaderData<{
+    data: Queue[];
+    shopInfo: Shop | null;
+    items: Item[];
+  }>();
   const queues = loaderData.data || [];
   const shop = loaderData.shopInfo;
 
-  if(!shop) return redirect("/homepage")
+  if (!shop) return redirect("/homepage");
 
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [selectedQueue, setSelectedQueue] = useState<number | null>(null);
   const [queue, setQueue] = useState<Queue | null>(null);
-
 
   const handleQueueClick = (index: number, queue: Queue) => {
     setSelectedQueue(index);
@@ -105,18 +131,20 @@ function ShopPage() {
                 key={index}
                 onClick={() => setSelectedIndex(index)}
                 className={`relative pb-2 text-[16px] transition-all duration-300 
-                                    ${selectedIndex === index
-                    ? "font-semibold text-black"
-                    : "text-gray-500"
-                  }`}
+                                    ${
+                                      selectedIndex === index
+                                        ? "font-semibold text-black"
+                                        : "text-gray-500"
+                                    }`}
               >
                 {tab}
                 <span
                   className={`absolute left-0 bottom-0 w-full h-[2px] bg-black transition-all duration-300
-                                        ${selectedIndex === index
-                      ? "scale-x-100"
-                      : "scale-x-0"
-                    }
+                                        ${
+                                          selectedIndex === index
+                                            ? "scale-x-100"
+                                            : "scale-x-0"
+                                        }
                                     `}
                 />
               </button>
@@ -124,8 +152,9 @@ function ShopPage() {
           </div>
 
           <div
-            className={`transition-all duration-500 ease-in-out transform ${selectedIndex === 0 ? "translate-x-0" : "-translate-x-full"
-              }`}
+            className={`transition-all duration-500 ease-in-out transform ${
+              selectedIndex === 0 ? "translate-x-0" : "-translate-x-full"
+            }`}
           >
             {selectedIndex === 0 && (
               <GapController gap={20}>
@@ -164,7 +193,7 @@ function ShopPage() {
                 <div className="flex justify-center py-4">
                   <Loader2 className="animate-spin h-8 w-8 text-blue-600" />
                 </div>
-              ) :
+              ) : (
                 <button
                   className="bg-primary-dark rounded-xl w-full text-white py-[15px]"
                   id="bookQueue"
@@ -172,13 +201,15 @@ function ShopPage() {
                   type="submit"
                 >
                   จองเลย
-                </button>}
+                </button>
+              )}
             </fetcher.Form>
           )}
 
           <div
-            className={`transition-all duration-500 ease-in-out transform ${selectedIndex === 1 ? "translate-x-0" : "translate-x-full"
-              }`}
+            className={`transition-all duration-500 ease-in-out transform ${
+              selectedIndex === 1 ? "translate-x-0" : "translate-x-full"
+            }`}
           >
             {selectedIndex === 1 && (
               <GapController gap={10}>
@@ -205,9 +236,15 @@ function ShopPage() {
 
                     <GapController gap={5} y_axis={false}>
                       <Phone width={14} height={17}></Phone>
-                      <p className="underline text-[12px] font-bold">
-                        {`${shop.phone.slice(0, 4)}-${shop.phone.slice(4, 8)}-${shop.phone.slice(6)}`}
-                      </p>
+                      <a
+                        className="underline text-[12px] font-bold"
+                        href={`tel:${shop.phone}`}
+                      >
+                        {`${shop.phone.slice(0, 4)}-${shop.phone.slice(
+                          4,
+                          8
+                        )}-${shop.phone.slice(6)}`}
+                      </a>
                     </GapController>
                   </GapController>
                 </div>
@@ -216,42 +253,19 @@ function ShopPage() {
                   <GapController gap={15}>
                     <h1 className="text-[32px] font-normal">รายการสินค้า</h1>
                     <div className="grid grid-cols-4 gap-x-auto gap-y-4">
-                      <MenuCard
-                        img_url="/starbuck.png"
-                        name="Coffee"
-                      ></MenuCard>
-                      <MenuCard
-                        img_url="/starbuck.png"
-                        name="Coffee"
-                      ></MenuCard>
-                      <MenuCard
-                        img_url="/starbuck.png"
-                        name="Coffee"
-                      ></MenuCard>
-                      <MenuCard
-                        img_url="/starbuck.png"
-                        name="Coffee"
-                      ></MenuCard>
-                      <MenuCard
-                        img_url="/starbuck.png"
-                        name="Coffee"
-                      ></MenuCard>
-                      <MenuCard
-                        img_url="/starbuck.png"
-                        name="Coffee"
-                      ></MenuCard>
-                      <MenuCard
-                        img_url="/starbuck.png"
-                        name="Coffee"
-                      ></MenuCard>
-                      <MenuCard
-                        img_url="/starbuck.png"
-                        name="Coffee"
-                      ></MenuCard>
-                      <MenuCard
-                        img_url="/starbuck.png"
-                        name="Coffee"
-                      ></MenuCard>
+                      {loaderData.items.length > 0 ? (
+                        <>
+                          {loaderData.items.map((item, index) => (
+                            <MenuCard
+                              key={index}
+                              img_url={item.image_url}
+                              name={item.name}
+                            />
+                          ))}
+                        </>
+                      ) : (
+                        <></>
+                      )}
                     </div>
                   </GapController>
                 </div>

@@ -9,9 +9,6 @@ declare module "react-router" {
 type Params = {
   "/": {};
   "/forget-password": {};
-  "/merchant/store-management": {};
-  "/merchant/dashboard": {};
-  "/merchant/queue": {};
   "/queue-complete/:queueId": {
     "queueId": string;
   };
